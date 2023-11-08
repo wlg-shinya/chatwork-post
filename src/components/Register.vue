@@ -3,9 +3,11 @@ import { ref } from "vue";
 
 // defineProps<{ msg: string }>()
 
-const APP_TITLE = ref(import.meta.env.VITE_APP_TITLE);
+const body = ref("");
 </script>
 
 <template>
-  <dev>{{ APP_TITLE }}</dev>
+  <dev>
+    <textarea v-model="body"></textarea>
+  </dev>
 </template>
