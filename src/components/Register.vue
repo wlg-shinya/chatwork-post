@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import axios from "axios";
 
 // defineProps<{ msg: string }>()
 
-const body = ref("");
+const roomUrl = ref("https://www.chatwork.com/#!rid335028121");
+const body = ref(import.meta.env.VITE_APP_TITLE);
+
+const roomId = computed(() => roomUrl.value.replace(/.*rid([0-9]+)$/, "$1"));
+
 function chat() {
   axios
     .post("/api/chatwork_post_message", {
-      room_id: "335028121",
+      room_id: roomId.value,
       body: body.value,
     })
     .catch((err) => {
@@ -18,7 +22,7 @@ function chat() {
 function addDB() {
   axios
     .post("/api/db_add", {
-      room_id: "335028121",
+      room_id: roomId.value,
       body: body.value,
     })
     .catch((err) => {
@@ -29,6 +33,7 @@ function addDB() {
 
 <template>
   <dev>
+    <input v-model="roomUrl" />
     <textarea v-model="body"></textarea>
     <button @click="chat()">chat</button>
     <button @click="addDB()">addDB</button>
