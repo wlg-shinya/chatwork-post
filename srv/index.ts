@@ -58,8 +58,8 @@ app.post("/api/db_add", (req, res) => {
     });
 });
 
-app.post("/api/chatwork_post_messages", (req: any, res: any) => {
-  console.log(`[${date()}] /api/chatwork_post_messages`);
+app.post("/api/chatwork_post_message", (req: any, res: any) => {
+  console.log(`[${date()}] /api/chatwork_post_message`);
   const room_id = bodyValue(req, "room_id");
   const body = bodyValue(req, "body");
   const self_unread = bodyValue(req, "self_unread", 0);

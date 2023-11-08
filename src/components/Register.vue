@@ -7,7 +7,7 @@ import axios from "axios";
 const body = ref("");
 function chat() {
   axios
-    .post("/api/chatwork_post_messages", {
+    .post("/api/chatwork_post_message", {
       room_id: "335028121",
       body: body.value,
     })
