@@ -6,10 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "serve": "npm run serve:build && npm run serve:run",
+    "serve:build": "vite build --ssr ./srv/index.ts --outDir ./dist-ssr",
+    "serve:run": "node ./dist-ssr/index.js"
   },
   "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "vue": "^3.3.4"
   },
   "devDependencies": {
