@@ -8,22 +8,22 @@ dotenv.config({ path: ".env" });
 import dotenvLocal from "dotenv";
 dotenvLocal.config({ path: ".env.local" });
 
-// URLクエリパラメータから値を得る
-function queryValue(req: any, name: string, defaultValue?: any, outputLog = true) {
-  if (typeof req.query[name] === "undefined") {
+// リクエストボディから値を得る
+function bodyValue(req: any, name: string, defaultValue?: any, outputLog = true) {
+  if (typeof req.body[name] === "undefined") {
     if (typeof defaultValue === "undefined") {
-      // クエリが見つからない場合
-      // defaultValue を指定していなければクエリ指定必須なので例外投げる
-      throw new Error(`Not set query '${name}'`);
+      // 要素が見つからない場合
+      // defaultValue を指定していなければ指定必須なので例外投げる
+      throw new Error(`Not set body '${name}'`);
     } else {
-      // defaultValue が指定されていればクエリ未指定許容なのでデフォルト値を返す
+      // defaultValue が指定されていれば未指定許容なのでデフォルト値を返す
       if (outputLog) console.log(`[${date()}]   ${name}=${defaultValue} (default)`);
       return defaultValue;
     }
   } else {
-    // クエリが見つかったらその値を返す
-    if (outputLog) console.log(`[${date()}]   ${name}=${req.query[name]}`);
-    return req.query[name];
+    // 要素が見つかったらその値を返す
+    if (outputLog) console.log(`[${date()}]   ${name}=${req.body[name]}`);
+    return req.body[name];
   }
 }
 
@@ -42,16 +42,29 @@ app.listen(port, () => {
   console.log(`[${date()}]   Chatwork API is ${token ? "available!" : "unavailable..."}`);
 });
 
-app.get("/api/chatwork_get_messages", (req, res) => {
-  console.log(`[${date()}] /api/chatwork_get_message`);
-  const room_id = queryValue(req, "room_id");
-  // https://developer.chatwork.com/reference/get-rooms-room_id-messages
-  const config = { headers: { "x-chatworktoken": token } };
+app.post("/api/chatwork_post_messages", (req: any, res: any) => {
+  console.log(`[${date()}] /api/chatwork_post_messages`);
+  const room_id = bodyValue(req, "room_id");
+  const body = bodyValue(req, "body");
+  const self_unread = bodyValue(req, "self_unread", 0);
+  const config = {
+    headers: {
+      accept: "application/json",
+      "content-type": "application/x-www-form-urlencoded",
+      "x-chatworktoken": token,
+    },
+  };
   axios
-    .get(`https://api.chatwork.com/v2/rooms/${room_id}/messages?force=1`, config)
-    .then((response) => {
-      const data = JSON.parse(JSON.stringify(response.data));
-      res.json(data);
+    .post(
+      `https://api.chatwork.com/v2/rooms/${room_id}/messages`,
+      {
+        body: body,
+        self_unread: self_unread,
+      },
+      config
+    )
+    .then(() => {
+      res.send();
     })
     .catch((err) => {
       throw err;
