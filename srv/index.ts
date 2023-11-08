@@ -1,6 +1,7 @@
 import express from "express";
 import axios from "axios";
 import cors from "cors";
+import pg from "./pg-client";
 
 // 環境変数の読み込み
 import dotenv from "dotenv";
@@ -40,6 +41,21 @@ const port = process.env.VITE_BACKEND_PORT ?? "";
 app.listen(port, () => {
   console.log(`[${date()}] Server running at: ${process.env.VITE_BASE_URL}:${port}`);
   console.log(`[${date()}]   Chatwork API is ${token ? "available!" : "unavailable..."}`);
+});
+
+app.post("/api/db_add", (req, res) => {
+  console.log(`[${date()}] /api/db_add`);
+  const room_id = Number(bodyValue(req, "room_id"));
+  const body = bodyValue(req, "body");
+  const self_unread = bodyValue(req, "self_unread", "FALSE");
+  const dbquery = `INSERT INTO regist (room_id,body,self_unread) VALUES (${room_id},'${body}',${self_unread});`;
+  pg.query(dbquery)
+    .then(() => {
+      res.send();
+    })
+    .catch((err) => {
+      throw err;
+    });
 });
 
 app.post("/api/chatwork_post_messages", (req: any, res: any) => {
