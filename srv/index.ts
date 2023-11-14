@@ -46,7 +46,7 @@ app.listen(port, () => {
   const routingListKeys = Object.keys(routingList);
   if (routingListKeys.length > 0) {
     console.log(`[${date()}] API route found:`);
-    Object.keys(routingList).forEach((key) => {
+    routingListKeys.forEach((key) => {
       console.log(`[${date()}] - ${key}: ${routingList[key]}`);
     });
   }
