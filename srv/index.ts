@@ -2,6 +2,7 @@ import express from "express";
 import axios from "axios";
 import cors from "cors";
 import pg from "./pg-client";
+import ExpressRoutingList from "./express-routing-list";
 
 // 環境変数の読み込み
 import dotenv from "dotenv";
@@ -40,7 +41,15 @@ app.use(cors());
 const port = process.env.VITE_BACKEND_PORT ?? "";
 app.listen(port, () => {
   console.log(`[${date()}] Server running at: ${process.env.VITE_BASE_URL}:${port}`);
-  console.log(`[${date()}]   Chatwork API is ${token ? "available!" : "unavailable..."}`);
+  console.log(`[${date()}] Chatwork API: ${token ? "available!" : "unavailable..."}`);
+  const routingList = ExpressRoutingList({ app });
+  const routingListKeys = Object.keys(routingList);
+  if (routingListKeys.length > 0) {
+    console.log(`[${date()}] API route found:`);
+    Object.keys(routingList).forEach((key) => {
+      console.log(`[${date()}] - ${key}: ${routingList[key]}`);
+    });
+  }
 });
 
 app.post("/api/db_add", (req, res) => {
