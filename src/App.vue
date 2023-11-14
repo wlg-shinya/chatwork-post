@@ -3,5 +3,7 @@ import Register from "./components/Register.vue";
 </script>
 
 <template>
-  <Register />
+  <Suspense>
+    <Register />
+  </Suspense>
 </template>

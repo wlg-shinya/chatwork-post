@@ -4,6 +4,14 @@ import axios from "axios";
 
 // defineProps<{ msg: string }>()
 
+interface RegisteredData {
+  id: number;
+  roomId: number;
+  body: string;
+  selfUnread: boolean;
+}
+
+const registeredData = ref<RegisteredData[]>([]);
 const roomUrl = ref("https://www.chatwork.com/#!rid335028121");
 const body = ref(import.meta.env.VITE_APP_TITLE);
 
@@ -30,25 +38,54 @@ function addDB() {
     });
 }
 
-function db_get_all() {
-  axios
+async function getRegisteredData() {
+  const dataArray: RegisteredData[] = [];
+  await axios
     .get("/api/db_get_all")
     .then((response: any) => {
       const data = JSON.parse(JSON.stringify(response.data));
-      console.log(data);
+      if (data.length > 0) {
+        data.forEach((x: any) => {
+          dataArray.push({
+            id: x.id,
+            roomId: x.room_id,
+            body: x.body,
+            selfUnread: x.self_unread,
+          });
+        });
+      }
     })
     .catch((err) => {
       throw err;
     });
+  return dataArray;
 }
+
+registeredData.value = await getRegisteredData();
 </script>
 
 <template>
-  <dev>
+  <div>
     <input v-model="roomUrl" />
     <textarea v-model="body"></textarea>
     <button @click="chat()">chat</button>
     <button @click="addDB()">addDB</button>
-    <button @click="db_get_all()">db_get_all</button>
-  </dev>
+
+    <table>
+      <thead>
+        <tr>
+          <th>チャット部屋ID</th>
+          <th>投稿予定文</th>
+          <th>投稿者にとっても未読にするか</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="d in registeredData" :key="d.id">
+          <td>{{ d.roomId }}</td>
+          <td>{{ d.body }}</td>
+          <td>{{ d.selfUnread }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
