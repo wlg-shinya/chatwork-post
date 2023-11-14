@@ -40,15 +40,21 @@ app.use(express.json());
 app.use(cors());
 const port = process.env.VITE_BACKEND_PORT ?? "";
 app.listen(port, () => {
-  console.log(`[${date()}] Server running at: ${process.env.VITE_BASE_URL}:${port}`);
-  console.log(`[${date()}] Chatwork API: ${token ? "available!" : "unavailable..."}`);
-  const routingList = ExpressRoutingList({ app });
-  const routingListKeys = Object.keys(routingList);
-  if (routingListKeys.length > 0) {
-    console.log(`[${date()}] API route found:`);
-    routingListKeys.forEach((key) => {
-      console.log(`[${date()}] - ${key}: ${routingList[key]}`);
-    });
+  // サーバ起動時に表示されるもの
+  {
+    // URL＆ポート番号
+    console.log(`[${date()}] Server running at: ${process.env.VITE_BASE_URL}:${port}`);
+    // ChatworkAPIが利用可能かどうか
+    console.log(`[${date()}] Chatwork API: ${token ? "available!" : "unavailable..."}`);
+    // API一覧
+    const routingList = ExpressRoutingList({ app });
+    const routingListKeys = Object.keys(routingList);
+    if (routingListKeys.length > 0) {
+      console.log(`[${date()}] API route found:`);
+      routingListKeys.forEach((key) => {
+        console.log(`[${date()}] - ${key}: ${routingList[key]}`);
+      });
+    }
   }
 });
 
