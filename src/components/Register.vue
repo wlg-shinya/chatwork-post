@@ -29,6 +29,18 @@ function addDB() {
       throw err;
     });
 }
+
+function db_get_all() {
+  axios
+    .get("/api/db_get_all")
+    .then((response: any) => {
+      const data = JSON.parse(JSON.stringify(response.data));
+      console.log(data);
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
 </script>
 
 <template>
@@ -37,5 +49,6 @@ function addDB() {
     <textarea v-model="body"></textarea>
     <button @click="chat()">chat</button>
     <button @click="addDB()">addDB</button>
+    <button @click="db_get_all()">db_get_all</button>
   </dev>
 </template>

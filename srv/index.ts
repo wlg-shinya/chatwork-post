@@ -43,19 +43,41 @@ app.listen(port, () => {
   // サーバ起動時に表示されるもの
   {
     // URL＆ポート番号
-    console.log(`[${date()}] Server running at: ${process.env.VITE_BASE_URL}:${port}`);
+    console.log(`[${date()}] Server URL: ${process.env.VITE_BASE_URL}:${port}`);
     // ChatworkAPIが利用可能かどうか
     console.log(`[${date()}] Chatwork API: ${token ? "available!" : "unavailable..."}`);
     // API一覧
     const routingList = ExpressRoutingList({ app });
     const routingListKeys = Object.keys(routingList);
     if (routingListKeys.length > 0) {
-      console.log(`[${date()}] API route found:`);
+      console.log(`[${date()}] API route:`);
       routingListKeys.forEach((key) => {
         console.log(`[${date()}] - ${key}: ${routingList[key]}`);
       });
     }
+    // 以降、ログ出力待機
+    console.log(`[${date()}] Log:`);
   }
+});
+
+app.get("/api/db_get_all", (req: any, res: any) => {
+  console.log(`[${date()}] /api/db_get_all`);
+  const dbquery = `select * from regist;`;
+  pg.query(dbquery)
+    .then((result: any) => {
+      const json = result.rows.map((x: any) => {
+        return {
+          id: x.id,
+          room_id: x.room_id,
+          body: x.body,
+          self_unread: x.self_unread,
+        };
+      });
+      res.json(json);
+    })
+    .catch((err) => {
+      throw err;
+    });
 });
 
 app.post("/api/db_add", (req: any, res: any) => {
