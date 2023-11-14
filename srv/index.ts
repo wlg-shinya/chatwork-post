@@ -58,7 +58,7 @@ app.listen(port, () => {
   }
 });
 
-app.post("/api/db_add", (req, res) => {
+app.post("/api/db_add", (req: any, res: any) => {
   console.log(`[${date()}] /api/db_add`);
   const room_id = Number(bodyValue(req, "room_id"));
   const body = bodyValue(req, "body");
