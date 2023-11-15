@@ -115,6 +115,16 @@ function deleteRegisteredData(id: number) {
     });
 }
 
+function startEdit(data: RegisteredData) {
+  data.editing = true;
+}
+
+function cancelEdit(data: RegisteredData) {
+  data.editing = false;
+  // 登録済み情報を更新することで編集したデータを破棄
+  updateViewData();
+}
+
 // ページ表示や更新のときに行う処理
 updateViewData();
 </script>
@@ -146,8 +156,8 @@ updateViewData();
           <td v-if="d.editing"><input type="checkbox" v-model="d.editableData.selfUnread" /></td>
           <td v-else>{{ d.editableData.selfUnread }}</td>
           <td v-if="d.editing"><button @click="updateRegisteredData(d)">更新</button></td>
-          <td v-else><button @click="d.editing = true">編集</button></td>
-          <td v-if="d.editing"><button @click="d.editing = false">キャンセル</button></td>
+          <td v-else><button @click="startEdit(d)">編集</button></td>
+          <td v-if="d.editing"><button @click="cancelEdit(d)">キャンセル</button></td>
           <td v-else><button @click="deleteRegisteredData(d.id)">削除</button></td>
         </tr>
       </tbody>
