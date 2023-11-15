@@ -83,7 +83,6 @@ function getRoomId(roomInfo: string | number): number {
 }
 
 function register() {
-  newInputData.value.postCondition.setup();
   axios
     .post("/api/db_register", {
       room_id: getRoomId(newInputData.value.roomInfo),
