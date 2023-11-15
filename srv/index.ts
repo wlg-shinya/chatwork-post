@@ -62,7 +62,7 @@ app.listen(port, () => {
 
 app.get("/api/db_get_all", (req: any, res: any) => {
   console.log(`[${date()}] /api/db_get_all`);
-  const dbquery = `select * from regist;`;
+  const dbquery = `select * from register;`;
   pg.query(dbquery)
     .then((result: any) => {
       const json = result.rows.map((x: any) => {
@@ -85,7 +85,7 @@ app.post("/api/db_add", (req: any, res: any) => {
   const room_id = Number(bodyValue(req, "room_id"));
   const body = bodyValue(req, "body");
   const self_unread = bodyValue(req, "self_unread", "FALSE");
-  const dbquery = `INSERT INTO regist (room_id,body,self_unread) VALUES (${room_id},'${body}',${self_unread});`;
+  const dbquery = `INSERT INTO register (room_id,body,self_unread) VALUES (${room_id},'${body}',${self_unread});`;
   pg.query(dbquery)
     .then(() => {
       res.send();

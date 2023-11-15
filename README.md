@@ -12,7 +12,7 @@ npm install
 $ psql -d postgres -U [YourUsername]
 # CREATE DATABASE chatnotice;
 # \connect chatnotice
-# CREATE TABLE regist (id serial, room_id integer, body text, self_unread boolean);
+# CREATE TABLE register (id serial, room_id integer, body text, self_unread boolean);
 ```
 
 ### Compiles and hot-reloads for development
