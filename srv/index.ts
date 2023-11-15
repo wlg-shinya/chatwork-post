@@ -2,7 +2,7 @@ import express from "express";
 import axios from "axios";
 import cors from "cors";
 import pg from "./pg-client";
-import ExpressRoutingList from "./express-routing-list";
+import RoutingList from "./express-routing-list";
 
 // 環境変数の読み込み
 import dotenv from "dotenv";
@@ -47,7 +47,7 @@ app.listen(port, () => {
     // ChatworkAPIが利用可能かどうか
     console.log(`[${date()}] Chatwork API: ${token ? "available!" : "unavailable..."}`);
     // API一覧
-    const routingList = ExpressRoutingList({ app });
+    const routingList = RoutingList({ app });
     const routingListKeys = Object.keys(routingList);
     if (routingListKeys.length > 0) {
       console.log(`[${date()}] API route:`);
