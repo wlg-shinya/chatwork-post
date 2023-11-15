@@ -83,6 +83,7 @@ function getRoomId(roomInfo: string | number): number {
 }
 
 function register() {
+  // TODO: postConditionのDB保存対応。データ設計から。
   axios
     .post("/api/db_register", {
       room_id: getRoomId(newInputData.value.roomInfo),
