@@ -60,8 +60,8 @@ app.listen(port, () => {
   }
 });
 
-app.get("/api/db_get_all", (req: any, res: any) => {
-  console.log(`[${date()}] /api/db_get_all`);
+app.get("/api/db_register", (req: any, res: any) => {
+  console.log(`[${date()}] GET /api/db_register`);
   const dbquery = `select * from register;`;
   pg.query(dbquery)
     .then((result: any) => {
@@ -80,12 +80,25 @@ app.get("/api/db_get_all", (req: any, res: any) => {
     });
 });
 
-app.post("/api/db_add", (req: any, res: any) => {
-  console.log(`[${date()}] /api/db_add`);
+app.post("/api/db_register", (req: any, res: any) => {
+  console.log(`[${date()}] POST /api/db_register`);
   const room_id = Number(bodyValue(req, "room_id"));
   const body = bodyValue(req, "body");
   const self_unread = bodyValue(req, "self_unread", "FALSE");
   const dbquery = `INSERT INTO register (room_id,body,self_unread) VALUES (${room_id},'${body}',${self_unread});`;
+  pg.query(dbquery)
+    .then(() => {
+      res.send();
+    })
+    .catch((err) => {
+      throw err;
+    });
+});
+
+app.delete("/api/db_register", (req: any, res: any) => {
+  console.log(`[${date()}] DELETE /api/db_register`);
+  const id = Number(bodyValue(req, "id"));
+  const dbquery = `DELETE FROM register WHERE id=${id};`;
   pg.query(dbquery)
     .then(() => {
       res.send();

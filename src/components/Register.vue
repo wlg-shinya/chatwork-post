@@ -40,7 +40,7 @@ const sortedRegisteredData = computed(() => registeredData.value.sort((a: any, b
 async function updateRegisteredData() {
   const dataArray: RegisteredData[] = [];
   await axios
-    .get("/api/db_get_all")
+    .get("/api/db_register")
     .then((response: any) => {
       const data = JSON.parse(JSON.stringify(response.data));
       if (data.length > 0) {
@@ -62,10 +62,25 @@ async function updateRegisteredData() {
 
 function register() {
   axios
-    .post("/api/db_add", {
+    .post("/api/db_register", {
       room_id: roomId.value,
       body: inputData.value.body,
       self_unread: inputData.value.selfUnread,
+    })
+    .then(() => {
+      updateRegisteredData();
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
+
+function deleteRegisteredData(id: number) {
+  axios
+    .delete("/api/db_register", {
+      data: {
+        id: id,
+      },
     })
     .then(() => {
       updateRegisteredData();
@@ -101,6 +116,7 @@ updateRegisteredData();
           <td>{{ d.roomId }}</td>
           <td>{{ d.body }}</td>
           <td>{{ d.selfUnread }}</td>
+          <td><button @click="deleteRegisteredData(d.id)">削除</button></td>
         </tr>
       </tbody>
     </table>
