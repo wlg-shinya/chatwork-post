@@ -32,12 +32,31 @@ const roomId = computed((): number => {
     // 部屋IDを直接指定していたらそのまま扱う
     return Number(roomInfo);
   } else {
-    throw new Error('Error: Invalid input "roomInfo"');
+    throw new Error('Invalid input "roomInfo"');
   }
 });
 const sortedRegisteredData = computed(() => registeredData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
 
-async function updateRegisteredData() {
+async function updateViewData() {
+  registeredData.value = await getRegisteredData();
+}
+
+function register() {
+  axios
+    .post("/api/db_register", {
+      room_id: roomId.value,
+      body: inputData.value.body,
+      self_unread: inputData.value.selfUnread,
+    })
+    .then(() => {
+      updateViewData();
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
+
+async function getRegisteredData(): Promise<RegisteredData[]> {
   const dataArray: RegisteredData[] = [];
   await axios
     .get("/api/db_register")
@@ -57,18 +76,19 @@ async function updateRegisteredData() {
     .catch((err) => {
       throw err;
     });
-  registeredData.value = dataArray;
+  return dataArray;
 }
 
-function register() {
+function updateRegisteredData(data: RegisteredData) {
   axios
-    .post("/api/db_register", {
-      room_id: roomId.value,
-      body: inputData.value.body,
-      self_unread: inputData.value.selfUnread,
+    .put("/api/db_register", {
+      id: data.id,
+      room_id: data.roomId,
+      body: data.body,
+      self_unread: data.selfUnread,
     })
     .then(() => {
-      updateRegisteredData();
+      updateViewData();
     })
     .catch((err) => {
       throw err;
@@ -83,15 +103,15 @@ function deleteRegisteredData(id: number) {
       },
     })
     .then(() => {
-      updateRegisteredData();
+      updateViewData();
     })
     .catch((err) => {
       throw err;
     });
 }
 
-// 表示するための情報を集める
-updateRegisteredData();
+// ページ表示や更新のときに行う処理
+updateViewData();
 </script>
 
 <template>
@@ -102,6 +122,7 @@ updateRegisteredData();
           <th>チャット部屋ID</th>
           <th>投稿予定文</th>
           <th>投稿者にとっても未読にするか</th>
+          <th></th>
           <th></th>
         </tr>
       </thead>
@@ -116,6 +137,7 @@ updateRegisteredData();
           <td>{{ d.roomId }}</td>
           <td>{{ d.body }}</td>
           <td>{{ d.selfUnread }}</td>
+          <td><button @click="updateRegisteredData(d)">更新</button></td>
           <td><button @click="deleteRegisteredData(d.id)">削除</button></td>
         </tr>
       </tbody>

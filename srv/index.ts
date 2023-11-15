@@ -95,6 +95,22 @@ app.post("/api/db_register", (req: any, res: any) => {
     });
 });
 
+app.put("/api/db_register", (req: any, res: any) => {
+  console.log(`[${date()}] PUT /api/db_register`);
+  const id = Number(bodyValue(req, "id"));
+  const room_id = Number(bodyValue(req, "room_id"));
+  const body = bodyValue(req, "body");
+  const self_unread = bodyValue(req, "self_unread", "FALSE");
+  const dbquery = `UPDATE register SET (room_id,body,self_unread) = (${room_id},'${body}',${self_unread}) WHERE id=${id};`;
+  pg.query(dbquery)
+    .then(() => {
+      res.send();
+    })
+    .catch((err) => {
+      throw err;
+    });
+});
+
 app.delete("/api/db_register", (req: any, res: any) => {
   console.log(`[${date()}] DELETE /api/db_register`);
   const id = Number(bodyValue(req, "id"));
