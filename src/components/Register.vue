@@ -178,7 +178,7 @@ updateWorkingData();
           <td><input v-model="newInputData.roomInfo" /></td>
           <td><textarea v-model="newInputData.body"></textarea></td>
           <td><input type="checkbox" v-model="newInputData.selfUnread" /></td>
-          <td><button @click="register">新規登録</button></td>
+          <td colspan="2"><button @click="register">新規登録</button></td>
         </tr>
         <tr v-for="d in sortedWorkingData" :key="d.id">
           <template v-if="d.editing">
