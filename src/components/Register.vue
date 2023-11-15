@@ -149,16 +149,20 @@ updateViewData();
           <td><button @click="register">新規登録</button></td>
         </tr>
         <tr v-for="d in sortedRegisteredData" :key="d.id">
-          <td v-if="d.editing"><input v-model="d.editableData.roomInfo" /></td>
-          <td v-else>{{ d.editableData.roomInfo }}</td>
-          <td v-if="d.editing"><textarea v-model="d.editableData.body"></textarea></td>
-          <td v-else>{{ d.editableData.body }}</td>
-          <td v-if="d.editing"><input type="checkbox" v-model="d.editableData.selfUnread" /></td>
-          <td v-else>{{ d.editableData.selfUnread }}</td>
-          <td v-if="d.editing"><button @click="updateRegisteredData(d)">更新</button></td>
-          <td v-else><button @click="startEdit(d)">編集</button></td>
-          <td v-if="d.editing"><button @click="cancelEdit(d)">キャンセル</button></td>
-          <td v-else><button @click="deleteRegisteredData(d.id)">削除</button></td>
+          <template v-if="d.editing">
+            <td><input v-model="d.editableData.roomInfo" /></td>
+            <td><textarea v-model="d.editableData.body"></textarea></td>
+            <td><input type="checkbox" v-model="d.editableData.selfUnread" /></td>
+            <td><button @click="updateRegisteredData(d)">更新</button></td>
+            <td><button @click="cancelEdit(d)">キャンセル</button></td>
+          </template>
+          <template v-else>
+            <td>{{ d.editableData.roomInfo }}</td>
+            <td>{{ d.editableData.body }}</td>
+            <td>{{ d.editableData.selfUnread }}</td>
+            <td><button @click="startEdit(d)">編集</button></td>
+            <td><button @click="deleteRegisteredData(d.id)">削除</button></td>
+          </template>
         </tr>
       </tbody>
     </table>
