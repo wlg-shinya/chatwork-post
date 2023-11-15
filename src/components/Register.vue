@@ -169,8 +169,7 @@ updateWorkingData();
           <th>チャット部屋ID</th>
           <th>投稿予定文</th>
           <th>投稿者にとっても未読にするか</th>
-          <th></th>
-          <th></th>
+          <th colspan="2"></th>
         </tr>
       </thead>
       <tbody>
