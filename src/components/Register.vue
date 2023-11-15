@@ -4,12 +4,18 @@ import axios from "axios";
 
 // defineProps<{ msg: string }>()
 
+interface RegisteredData {
+  id: number;
+  room_id: number;
+  body: string;
+  self_unread: boolean;
+}
 interface InputData {
   roomInfo: string;
   body: string;
   selfUnread: boolean;
 }
-interface RegisteredData {
+interface WorkingData {
   id: number;
   editableData: InputData;
   editing: boolean;
@@ -20,12 +26,41 @@ const newInputData = ref<InputData>({
   body: import.meta.env.VITE_APP_TITLE,
   selfUnread: false,
 });
-const registeredData = ref<RegisteredData[]>([]);
+const workingData = ref<WorkingData[]>([]);
 
-const sortedRegisteredData = computed(() => registeredData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
+const sortedWorkingData = computed(() => workingData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
 
-async function updateViewData() {
-  registeredData.value = await getRegisteredData();
+async function updateWorkingData() {
+  // 登録済みデータを表示用データに反映させる
+  (await getRegisteredDataAll()).forEach((r: RegisteredData) => {
+    const editableData: InputData = {
+      roomInfo: r.room_id.toString(),
+      body: r.body,
+      selfUnread: r.self_unread,
+    };
+    // 表示用データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
+    let foundIndex = -1;
+    if (
+      workingData.value.some((v, i) => {
+        if (v.id == r.id) foundIndex = i;
+        return v.id == r.id;
+      })
+    ) {
+      const foundWorkingData = workingData.value[foundIndex];
+      // ただし編集中なら上書きせずに表示用データを維持する
+      if (!foundWorkingData.editing) {
+        foundWorkingData.editableData = editableData;
+      }
+    }
+    // 初取得した登録済みデータなら表示用データに新規登録
+    else {
+      workingData.value.push({
+        id: r.id,
+        editableData: editableData,
+        editing: false,
+      });
+    }
+  });
 }
 
 function getRoomId(roomInfo: string | number): number {
@@ -51,14 +86,14 @@ function register() {
       self_unread: newInputData.value.selfUnread,
     })
     .then(() => {
-      updateViewData();
+      updateWorkingData();
     })
     .catch((err) => {
       throw err;
     });
 }
 
-async function getRegisteredData(): Promise<RegisteredData[]> {
+async function getRegisteredDataAll(): Promise<RegisteredData[]> {
   const dataArray: RegisteredData[] = [];
   await axios
     .get("/api/db_register")
@@ -68,12 +103,9 @@ async function getRegisteredData(): Promise<RegisteredData[]> {
         data.forEach((x: any) => {
           dataArray.push({
             id: x.id,
-            editableData: {
-              roomInfo: x.room_id,
-              body: x.body,
-              selfUnread: x.self_unread,
-            },
-            editing: false,
+            room_id: x.room_id,
+            body: x.body,
+            self_unread: x.self_unread,
           });
         });
       }
@@ -84,7 +116,7 @@ async function getRegisteredData(): Promise<RegisteredData[]> {
   return dataArray;
 }
 
-function updateRegisteredData(data: RegisteredData) {
+function updateRegisteredData(data: WorkingData) {
   axios
     .put("/api/db_register", {
       id: data.id,
@@ -93,7 +125,7 @@ function updateRegisteredData(data: RegisteredData) {
       self_unread: data.editableData.selfUnread,
     })
     .then(() => {
-      updateViewData();
+      updateWorkingData();
     })
     .catch((err) => {
       throw err;
@@ -108,25 +140,25 @@ function deleteRegisteredData(id: number) {
       },
     })
     .then(() => {
-      updateViewData();
+      updateWorkingData();
     })
     .catch((err) => {
       throw err;
     });
 }
 
-function startEdit(data: RegisteredData) {
+function startEdit(data: WorkingData) {
   data.editing = true;
 }
 
-function cancelEdit(data: RegisteredData) {
+function cancelEdit(data: WorkingData) {
   data.editing = false;
   // 登録済み情報を更新することで編集したデータを破棄
-  updateViewData();
+  updateWorkingData();
 }
 
 // ページ表示や更新のときに行う処理
-updateViewData();
+updateWorkingData();
 </script>
 
 <template>
@@ -148,7 +180,7 @@ updateViewData();
           <td><input type="checkbox" v-model="newInputData.selfUnread" /></td>
           <td><button @click="register">新規登録</button></td>
         </tr>
-        <tr v-for="d in sortedRegisteredData" :key="d.id">
+        <tr v-for="d in sortedWorkingData" :key="d.id">
           <template v-if="d.editing">
             <td><input v-model="d.editableData.roomInfo" /></td>
             <td><textarea v-model="d.editableData.body"></textarea></td>
