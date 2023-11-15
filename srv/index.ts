@@ -124,31 +124,31 @@ app.delete("/api/db_register", (req: any, res: any) => {
     });
 });
 
-app.post("/api/chatwork_post_message", (req: any, res: any) => {
-  console.log(`[${date()}] /api/chatwork_post_message`);
-  const room_id = bodyValue(req, "room_id");
-  const body = bodyValue(req, "body");
-  const self_unread = bodyValue(req, "self_unread", 0);
-  const config = {
-    headers: {
-      accept: "application/json",
-      "content-type": "application/x-www-form-urlencoded",
-      "x-chatworktoken": token,
-    },
-  };
-  axios
-    .post(
-      `https://api.chatwork.com/v2/rooms/${room_id}/messages`,
-      {
-        body: body,
-        self_unread: self_unread,
-      },
-      config
-    )
-    .then(() => {
-      res.send();
-    })
-    .catch((err) => {
-      throw err;
-    });
-});
+// app.post("/api/chatwork_message", (req: any, res: any) => {
+//   console.log(`[${date()}] /api/chatwork_message`);
+//   const room_id = bodyValue(req, "room_id");
+//   const body = bodyValue(req, "body");
+//   const self_unread = bodyValue(req, "self_unread", 0);
+//   const config = {
+//     headers: {
+//       accept: "application/json",
+//       "content-type": "application/x-www-form-urlencoded",
+//       "x-chatworktoken": token,
+//     },
+//   };
+//   axios
+//     .post(
+//       `https://api.chatwork.com/v2/rooms/${room_id}/messages`,
+//       {
+//         body: body,
+//         self_unread: self_unread,
+//       },
+//       config
+//     )
+//     .then(() => {
+//       res.send();
+//     })
+//     .catch((err) => {
+//       throw err;
+//     });
+// });
