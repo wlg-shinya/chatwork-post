@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import axios from "axios";
-
-// defineProps<{ msg: string }>()
+import Condition from "../condition/condition-interface";
+import ConditionComponent from "./Condition.vue";
+import DaysLaterCondition from "../condition/dayslater-condition";
 
 interface RegisteredData {
   id: number;
@@ -14,6 +15,7 @@ interface InputData {
   roomInfo: string;
   body: string;
   selfUnread: boolean;
+  postCondition: Condition;
 }
 interface WorkingData {
   id: number;
@@ -25,6 +27,7 @@ const newInputData = ref<InputData>({
   roomInfo: "https://www.chatwork.com/#!rid335028121", // test data
   body: import.meta.env.VITE_APP_TITLE, // test data
   selfUnread: false,
+  postCondition: new DaysLaterCondition(0, "10:00"),
 });
 const workingData = ref<WorkingData[]>([]);
 
@@ -37,6 +40,7 @@ async function updateWorkingData() {
       roomInfo: r.room_id.toString(),
       body: r.body,
       selfUnread: r.self_unread,
+      postCondition: new DaysLaterCondition(0, "10:00"),
     };
     // 表示用データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
     let foundIndex = -1;
@@ -79,6 +83,7 @@ function getRoomId(roomInfo: string | number): number {
 }
 
 function register() {
+  newInputData.value.postCondition.setup();
   axios
     .post("/api/db_register", {
       room_id: getRoomId(newInputData.value.roomInfo),
@@ -169,6 +174,7 @@ updateWorkingData();
           <th>チャット部屋ID</th>
           <th>投稿予定文</th>
           <th>投稿者にとっても未読にするか</th>
+          <th>投稿条件</th>
           <th colspan="2"></th>
         </tr>
       </thead>
@@ -177,6 +183,9 @@ updateWorkingData();
           <td><input v-model="newInputData.roomInfo" /></td>
           <td><textarea v-model="newInputData.body"></textarea></td>
           <td><input type="checkbox" v-model="newInputData.selfUnread" /></td>
+          <td>
+            <ConditionComponent :condition="newInputData.postCondition" :editting="true" />
+          </td>
           <td colspan="2"><button @click="register">新規登録</button></td>
         </tr>
         <tr v-for="d in sortedWorkingData" :key="d.id">
@@ -184,6 +193,9 @@ updateWorkingData();
             <td><input v-model="d.editableData.roomInfo" /></td>
             <td><textarea v-model="d.editableData.body"></textarea></td>
             <td><input type="checkbox" v-model="d.editableData.selfUnread" /></td>
+            <td>
+              <ConditionComponent :condition="d.editableData.postCondition" :editting="d.editing" />
+            </td>
             <td><button @click="updateRegisteredData(d)">更新</button></td>
             <td><button @click="cancelEdit(d)">キャンセル</button></td>
           </template>
@@ -191,6 +203,9 @@ updateWorkingData();
             <td>{{ d.editableData.roomInfo }}</td>
             <td>{{ d.editableData.body }}</td>
             <td>{{ d.editableData.selfUnread }}</td>
+            <td>
+              <ConditionComponent :condition="d.editableData.postCondition" :editting="d.editing" />
+            </td>
             <td><button @click="startEdit(d)">編集</button></td>
             <td><button @click="deleteRegisteredData(d.id)">削除</button></td>
           </template>
@@ -199,3 +214,4 @@ updateWorkingData();
     </table>
   </div>
 </template>
+../condition/dayslater-condition../condition/condition-interface
