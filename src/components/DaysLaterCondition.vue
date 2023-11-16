@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DaysLaterCondition from "../condition/dayslater-condition";
+import { DaysLaterCondition } from "../condition";
 defineProps<{
   condition: DaysLaterCondition;
   editting: boolean;

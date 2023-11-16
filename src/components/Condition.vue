@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import Condition from "../condition/condition-interface";
-import DaysLaterCondition from "../condition/dayslater-condition";
+import { Condition, DaysLaterCondition } from "../condition";
 import DaysLaterConditionComponent from "./DaysLaterCondition.vue";
 
 defineProps<{

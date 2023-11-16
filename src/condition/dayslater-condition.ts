@@ -1,10 +1,10 @@
-import Condition from "./condition-interface";
+import { Condition } from "./condition-interface";
 
-class DaysLaterCondition implements Condition {
+export class DaysLaterCondition implements Condition {
   type = this.constructor.name;
-  daysLater;
-  hoursMinutesString;
-  startDateString;
+  daysLater = 0;
+  hoursMinutesString = "";
+  startDateString = "";
 
   check(): boolean {
     // 今の時間が境界時間を越えていたら条件成立
@@ -26,17 +26,17 @@ class DaysLaterCondition implements Condition {
     this.startDateString = d.startDateString;
   }
 
-  constructor(daysLater: number, hoursMinutesString: string, startDateString?: string) {
-    this.daysLater = daysLater;
-    this.hoursMinutesString = hoursMinutesString;
-    if (typeof startDateString !== "undefined") {
-      this.startDateString = startDateString;
-    } else {
-      // 起点日が設定されていないなら今日を起点日にする
-      const today = this.today();
-      this.startDateString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`; // 月はデータが0始まりなので調整する
-    }
-  }
+  // constructor(daysLater: number, hoursMinutesString: string, startDateString?: string) {
+  //   this.daysLater = daysLater;
+  //   this.hoursMinutesString = hoursMinutesString;
+  //   if (typeof startDateString !== "undefined") {
+  //     this.startDateString = startDateString;
+  //   } else {
+  //     // 起点日が設定されていないなら今日を起点日にする
+  //     const today = this.today();
+  //     this.startDateString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`; // 月はデータが0始まりなので調整する
+  //   }
+  // }
 
   daysLaterString(): string {
     if (this.daysLater == 0) {
@@ -80,5 +80,3 @@ class DaysLaterCondition implements Condition {
     return startTime + daysLaterTime + hoursMinutesTime;
   }
 }
-
-export default DaysLaterCondition;
