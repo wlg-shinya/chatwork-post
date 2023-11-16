@@ -1,7 +1,7 @@
 import { Condition } from "./condition-interface";
 
 export class DaysLaterCondition implements Condition {
-  type = this.constructor.name;
+  name = "DaysLaterCondition";
   daysLater = 0;
   hoursMinutesString = "";
   startDateString = "";
@@ -12,7 +12,7 @@ export class DaysLaterCondition implements Condition {
   }
   getData(): string {
     return JSON.stringify({
-      type: this.type,
+      name: this.name,
       daysLater: this.daysLater,
       hoursMinutesString: this.hoursMinutesString,
       startDateString: this.startDateString,
@@ -20,7 +20,7 @@ export class DaysLaterCondition implements Condition {
   }
   setData(data: string) {
     const d = JSON.parse(data);
-    this.type = d.type;
+    this.name = d.name;
     this.daysLater = d.daysLater;
     this.hoursMinutesString = d.hoursMinutesString;
     this.startDateString = d.startDateString;

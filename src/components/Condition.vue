@@ -8,15 +8,15 @@ defineProps<{
 }>();
 
 function concreteCondition(cond: Condition) {
-  switch (cond.type) {
+  switch (cond.name) {
     case "DaysLaterCondition":
       return cond as DaysLaterCondition;
     default:
-      throw new Error('Invalid name "Condition.type"');
+      throw new Error('Invalid name "Condition.name"');
   }
 }
 </script>
 
 <template>
-  <DaysLaterConditionComponent v-if="condition.type == 'DaysLaterCondition'" :condition="concreteCondition(condition)" :editting="editting" />
+  <DaysLaterConditionComponent v-if="condition.name == 'DaysLaterCondition'" :condition="concreteCondition(condition)" :editting="editting" />
 </template>
