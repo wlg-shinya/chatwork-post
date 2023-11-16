@@ -35,15 +35,20 @@ const workingData = ref<WorkingData[]>([]);
 const sortedWorkingData = computed(() => workingData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
 
 async function updateWorkingData() {
-  // 登録済みデータを表示用データに反映させる
-  (await getRegisteredDataAll()).forEach((r: RegisteredData) => {
+  const registeredData = await getRegisteredDataAll();
+
+  // 登録済みデータから削除されたものがまだ作業中データに残っていたら除外する
+  workingData.value = workingData.value.filter((v) => registeredData.some((r) => r.id == v.id));
+
+  // 登録済みデータを作業中データに反映させる
+  registeredData.forEach((r: RegisteredData) => {
     const editableData: InputData = {
       roomInfo: r.room_id.toString(),
       body: r.body,
       selfUnread: r.self_unread,
       postCondition: new DaysLaterCondition(0, "10:00"),
     };
-    // 表示用データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
+    // 作業中データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
     let foundIndex = -1;
     if (
       workingData.value.some((v, i) => {
@@ -52,12 +57,12 @@ async function updateWorkingData() {
       })
     ) {
       const foundWorkingData = workingData.value[foundIndex];
-      // ただし編集中なら上書きせずに表示用データを維持する
+      // 編集ではない作業中データのみ上書きすることで編集中のデータをリセットさせないようにする
       if (!foundWorkingData.editing) {
         foundWorkingData.editableData = editableData;
       }
     }
-    // 初取得した登録済みデータなら表示用データに新規登録
+    // 初取得した登録済みデータなら作業中データに新規登録
     else {
       workingData.value.push({
         id: r.id,
