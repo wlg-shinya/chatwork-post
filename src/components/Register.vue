@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watchEffect } from "vue";
 import axios from "axios";
-import { Condition, createCondition } from "../condition";
+import { Condition, createCondition, DaysLaterCondition } from "../condition";
 import ConditionComponent from "./Condition.vue";
 
 interface RegisteredData {
@@ -15,7 +15,10 @@ interface InputData {
   roomInfo: string;
   body: string;
   selfUnread: boolean;
-  postCondition: Condition;
+  postCondition: {
+    name: string;
+    class: Condition;
+  };
 }
 interface WorkingData {
   id: number;
@@ -27,11 +30,23 @@ const newInputData = ref<InputData>({
   roomInfo: "https://www.chatwork.com/#!rid335028121", // test data
   body: import.meta.env.VITE_APP_TITLE, // test data
   selfUnread: false,
-  postCondition: createCondition("DaysLaterCondition"), // test data
+  postCondition: {
+    name: "DaysLaterCondition",
+    class: createCondition("DaysLaterCondition"),
+  },
 });
 const workingData = ref<WorkingData[]>([]);
 
 const sortedWorkingData = computed(() => workingData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
+
+watchEffect(() => {
+  newInputData.value.postCondition.class = createCondition(newInputData.value.postCondition.name);
+});
+watchEffect(() => {
+  workingData.value.forEach((x) => {
+    x.editableData.postCondition.class = createCondition(x.editableData.postCondition.name);
+  });
+});
 
 async function updateWorkingData() {
   const registeredData = await getRegisteredDataAll();
@@ -43,16 +58,19 @@ async function updateWorkingData() {
   registeredData.forEach((r: RegisteredData) => {
     const postConditionData = JSON.parse(r.post_condition);
     if (typeof postConditionData.name === "undefined") {
-      throw new Error(`Invalid data post_condition "${r.post_condition}"`);
+      throw new Error(`Invalid r.post_condition=${r.post_condition}`);
     }
     const editableData: InputData = {
       roomInfo: r.room_id.toString(),
       body: r.body,
       selfUnread: r.self_unread,
-      postCondition: createCondition(postConditionData.name),
+      postCondition: {
+        name: postConditionData.name,
+        class: createCondition(postConditionData.name),
+      },
     };
     // 投稿条件クラスのデータ復元
-    editableData.postCondition.setData(r.post_condition);
+    editableData.postCondition.class.setData(r.post_condition);
     // 作業中データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
     let foundIndex = -1;
     if (
@@ -89,7 +107,7 @@ function getRoomId(roomInfo: string | number): number {
     // 部屋IDを直接文字列指定していたらそのまま扱う
     return Number(roomInfo);
   } else {
-    throw new Error('Invalid input "roomInfo"');
+    throw new Error(`Invalid roomInfo=${roomInfo}`);
   }
 }
 
@@ -99,7 +117,7 @@ function register() {
       room_id: getRoomId(newInputData.value.roomInfo),
       body: newInputData.value.body,
       self_unread: newInputData.value.selfUnread,
-      post_condition: newInputData.value.postCondition.getData(),
+      post_condition: newInputData.value.postCondition.class.getData(),
     })
     .then(() => {
       updateWorkingData();
@@ -140,6 +158,7 @@ function updateRegisteredData(data: WorkingData) {
       room_id: getRoomId(data.editableData.roomInfo),
       body: data.editableData.body,
       self_unread: data.editableData.selfUnread,
+      post_condition: data.editableData.postCondition.class.getData(),
     })
     .then(() => {
       updateWorkingData();
@@ -196,7 +215,11 @@ updateWorkingData();
           <td><textarea v-model="newInputData.body"></textarea></td>
           <td><input type="checkbox" v-model="newInputData.selfUnread" /></td>
           <td>
-            <ConditionComponent :condition="newInputData.postCondition" :editting="true" />
+            <select v-model="newInputData.postCondition.name">
+              <option value="DaysLaterCondition">{{ DaysLaterCondition.selectLabel }}</option>
+            </select>
+            <br />
+            <ConditionComponent :condition="newInputData.postCondition.class" :editting="true" />
           </td>
           <td colspan="2"><button @click="register">新規登録</button></td>
         </tr>
@@ -206,7 +229,11 @@ updateWorkingData();
             <td><textarea v-model="d.editableData.body"></textarea></td>
             <td><input type="checkbox" v-model="d.editableData.selfUnread" /></td>
             <td>
-              <ConditionComponent :condition="d.editableData.postCondition" :editting="d.editing" />
+              <select v-model="d.editableData.postCondition.name">
+                <option value="DaysLaterCondition">{{ DaysLaterCondition.selectLabel }}</option>
+              </select>
+              <br />
+              <ConditionComponent :condition="d.editableData.postCondition.class" :editting="d.editing" />
             </td>
             <td><button @click="updateRegisteredData(d)">更新</button></td>
             <td><button @click="cancelEdit(d)">キャンセル</button></td>
@@ -216,7 +243,7 @@ updateWorkingData();
             <td>{{ d.editableData.body }}</td>
             <td>{{ d.editableData.selfUnread }}</td>
             <td>
-              <ConditionComponent :condition="d.editableData.postCondition" :editting="d.editing" />
+              <ConditionComponent :condition="d.editableData.postCondition.class" :editting="d.editing" />
             </td>
             <td><button @click="startEdit(d)">編集</button></td>
             <td><button @click="deleteRegisteredData(d.id)">削除</button></td>

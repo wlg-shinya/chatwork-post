@@ -6,6 +6,6 @@ export function createCondition(name: string): Condition {
     case "DaysLaterCondition":
       return new DaysLaterCondition();
     default:
-      throw new Error(`Invalid name "${name}"`);
+      throw new Error(`Invalid name=${name}`);
   }
 }

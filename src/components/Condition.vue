@@ -12,7 +12,7 @@ function concreteCondition(cond: Condition) {
     case "DaysLaterCondition":
       return cond as DaysLaterCondition;
     default:
-      throw new Error('Invalid name "Condition.name"');
+      throw new Error(`Invalid cond.name=${cond.name}`);
   }
 }
 </script>

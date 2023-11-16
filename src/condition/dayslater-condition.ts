@@ -6,6 +6,7 @@ export class DaysLaterCondition implements Condition {
   hoursMinutesString = "";
   startDateString = "";
 
+  static selectLabel = "〇日後の〇時〇分に投稿";
   check(): boolean {
     // 今の時間が境界時間を越えていたら条件成立
     return this.today().getTime() > this.borderTime();
@@ -54,7 +55,7 @@ export class DaysLaterCondition implements Condition {
     let startTime = 0;
     {
       const match = this.startDateString.match(/([0-9]+)-([0-9]+)-([0-9]+)/);
-      if (match?.length != 4) throw new Error('[DaysLaterCondition] Invalid value "startDateString"');
+      if (match?.length != 4) throw new Error(`Invalid this.startDateString=${this.startDateString}`);
       const date = new Date();
       date.setFullYear(Number(match[1]), Number(match[2]) - 1, Number(match[3])); // 月はデータが0始まりなので調整する
       startTime = date.getTime();
@@ -71,7 +72,7 @@ export class DaysLaterCondition implements Condition {
     let hoursMinutesTime = 0;
     {
       const match = this.hoursMinutesString.match(/([0-9]+):([0-9]+)/);
-      if (match?.length != 3) throw new Error('[DaysLaterCondition] Invalid value "hoursMinutesString"');
+      if (match?.length != 3) throw new Error(`Invalid this.hoursMinutesString=${this.hoursMinutesString}`);
       const date = new Date();
       date.setHours(Number(match[1]), Number(match[2]), 0, 0);
       hoursMinutesTime = date.getTime();
