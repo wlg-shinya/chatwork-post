@@ -71,6 +71,7 @@ app.get("/api/db_register", (req: any, res: any) => {
           room_id: x.room_id,
           body: x.body,
           self_unread: x.self_unread,
+          post_condition: x.post_condition,
         };
       });
       res.json(json);
@@ -83,9 +84,10 @@ app.get("/api/db_register", (req: any, res: any) => {
 app.post("/api/db_register", (req: any, res: any) => {
   console.log(`[${date()}] POST /api/db_register`);
   const room_id = Number(bodyValue(req, "room_id"));
-  const body = bodyValue(req, "body");
-  const self_unread = bodyValue(req, "self_unread", "FALSE");
-  const dbquery = `INSERT INTO register (room_id,body,self_unread) VALUES (${room_id},'${body}',${self_unread});`;
+  const body = `'${bodyValue(req, "body")}'`;
+  const self_unread = bodyValue(req, "self_unread");
+  const post_condition = `'${bodyValue(req, "post_condition")}'`;
+  const dbquery = `INSERT INTO register (room_id,body,self_unread,post_condition) VALUES (${room_id},${body},${self_unread},${post_condition});`;
   pg.query(dbquery)
     .then(() => {
       res.send();
@@ -99,9 +101,10 @@ app.put("/api/db_register", (req: any, res: any) => {
   console.log(`[${date()}] PUT /api/db_register`);
   const id = Number(bodyValue(req, "id"));
   const room_id = Number(bodyValue(req, "room_id"));
-  const body = bodyValue(req, "body");
-  const self_unread = bodyValue(req, "self_unread", "FALSE");
-  const dbquery = `UPDATE register SET (room_id,body,self_unread) = (${room_id},'${body}',${self_unread}) WHERE id=${id};`;
+  const body = `'${bodyValue(req, "body")}'`;
+  const self_unread = bodyValue(req, "self_unread");
+  const post_condition = `'${bodyValue(req, "post_condition")}'`;
+  const dbquery = `UPDATE register SET (room_id,body,self_unread,post_condition) = (${room_id},${body},${self_unread},${post_condition}) WHERE id=${id};`;
   pg.query(dbquery)
     .then(() => {
       res.send();

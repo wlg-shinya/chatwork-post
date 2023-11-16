@@ -1,10 +1,29 @@
 import Condition from "./condition-interface";
 
 class DaysLaterCondition implements Condition {
-  typename = this.constructor.name;
+  type = this.constructor.name;
+  daysLater;
+  hoursMinutesString;
+  startDateString;
+
   check(): boolean {
     // 今の時間が境界時間を越えていたら条件成立
     return this.today().getTime() > this.borderTime();
+  }
+  getData(): string {
+    return JSON.stringify({
+      type: this.type,
+      daysLater: this.daysLater,
+      hoursMinutesString: this.hoursMinutesString,
+      startDateString: this.startDateString,
+    });
+  }
+  setData(data: string) {
+    const d = JSON.parse(data);
+    this.type = d.type;
+    this.daysLater = d.daysLater;
+    this.hoursMinutesString = d.hoursMinutesString;
+    this.startDateString = d.startDateString;
   }
 
   constructor(daysLater: number, hoursMinutesString: string, startDateString?: string) {
@@ -18,10 +37,6 @@ class DaysLaterCondition implements Condition {
       this.startDateString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`; // 月はデータが0始まりなので調整する
     }
   }
-
-  daysLater;
-  hoursMinutesString;
-  startDateString;
 
   daysLaterString(): string {
     if (this.daysLater == 0) {

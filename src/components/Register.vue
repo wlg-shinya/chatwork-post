@@ -10,6 +10,7 @@ interface RegisteredData {
   room_id: number;
   body: string;
   self_unread: boolean;
+  post_condition: string;
 }
 interface InputData {
   roomInfo: string;
@@ -83,12 +84,12 @@ function getRoomId(roomInfo: string | number): number {
 }
 
 function register() {
-  // TODO: postConditionのDB保存対応。データ設計から。
   axios
     .post("/api/db_register", {
       room_id: getRoomId(newInputData.value.roomInfo),
       body: newInputData.value.body,
       self_unread: newInputData.value.selfUnread,
+      post_condition: newInputData.value.postCondition.getData(),
     })
     .then(() => {
       updateWorkingData();
@@ -111,6 +112,7 @@ async function getRegisteredDataAll(): Promise<RegisteredData[]> {
             room_id: x.room_id,
             body: x.body,
             self_unread: x.self_unread,
+            post_condition: x.post_condition,
           });
         });
       }
@@ -174,7 +176,7 @@ updateWorkingData();
           <th>チャット部屋ID</th>
           <th>投稿予定文</th>
           <th>投稿者にとっても未読にするか</th>
-          <th>投稿条件</th>
+          <th>投稿する条件</th>
           <th colspan="2"></th>
         </tr>
       </thead>
