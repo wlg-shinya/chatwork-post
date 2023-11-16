@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import axios from "axios";
-import Condition from "../condition/condition-interface";
+import { Condition, DaysLaterCondition, createCondition } from "../condition";
 import ConditionComponent from "./Condition.vue";
-import DaysLaterCondition from "../condition/dayslater-condition";
 
 interface RegisteredData {
   id: number;
@@ -28,7 +27,7 @@ const newInputData = ref<InputData>({
   roomInfo: "https://www.chatwork.com/#!rid335028121", // test data
   body: import.meta.env.VITE_APP_TITLE, // test data
   selfUnread: false,
-  postCondition: new DaysLaterCondition(0, "10:00"),
+  postCondition: new DaysLaterCondition(),
 });
 const workingData = ref<WorkingData[]>([]);
 
@@ -42,12 +41,18 @@ async function updateWorkingData() {
 
   // 登録済みデータを作業中データに反映させる
   registeredData.forEach((r: RegisteredData) => {
+    const postConditionData = JSON.parse(r.post_condition);
+    if (typeof postConditionData.type === "undefined") {
+      throw new Error(`Invalid data post_condition "${r.post_condition}"`);
+    }
     const editableData: InputData = {
       roomInfo: r.room_id.toString(),
       body: r.body,
       selfUnread: r.self_unread,
-      postCondition: new DaysLaterCondition(0, "10:00"),
+      postCondition: createCondition(postConditionData.type),
     };
+    // 投稿条件モジュールのデータを復元
+    editableData.postCondition.setData(r.post_condition);
     // 作業中データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
     let foundIndex = -1;
     if (
@@ -221,3 +226,4 @@ updateWorkingData();
     </table>
   </div>
 </template>
+../condition ../condition/condition ../condition ../condition/condition
