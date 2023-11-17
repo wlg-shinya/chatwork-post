@@ -86,6 +86,10 @@ function chatworkPostMessage(roomId: number, body: string, selfUnread: boolean) 
   });
 }
 
+// チャット投稿判定の監視間隔(秒)
+// DB負荷とチャット投稿時間遅延のトレードオフになるパラメータ
+// ユーザには分単位での入力を許容しているので60より大きくするのは非推奨
+const POLLING_INTERVAL_SEC = 30;
 async function pollingChatworkPostMessage() {
   setTimeout(async () => {
     const registeredDataArray = await getRegisteredDataAll();
@@ -106,7 +110,7 @@ async function pollingChatworkPostMessage() {
       }
     });
     pollingChatworkPostMessage();
-  }, 1000);
+  }, POLLING_INTERVAL_SEC * 1000);
 }
 
 function displayInfo() {
