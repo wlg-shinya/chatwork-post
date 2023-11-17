@@ -2,7 +2,7 @@
 import { ref, computed } from "vue";
 import axios from "axios";
 import { RegisteredData } from "../types";
-import { Condition, concreteCondition, createCondition } from "../condition";
+import { Condition, concreteCondition, restoreCondition } from "../condition";
 import ConditionComponent from "./Condition.vue";
 
 interface InputData {
@@ -42,24 +42,16 @@ async function updateWorkingData() {
 
   registeredData.forEach((r: RegisteredData) => {
     // 編集可能データを構築
-    const postConditionData = JSON.parse(r.post_condition);
-    if (typeof postConditionData.name === "undefined") {
-      throw new Error(`r.post_condition=${r.post_condition}`);
-    }
+    const condition = restoreCondition(r.post_condition);
     const editableData: InputData = {
       roomInfo: r.room_id.toString(),
       body: r.body,
       selfUnread: r.self_unread,
       postCondition: {
-        name: postConditionData.name,
-        class: createCondition(postConditionData.name),
+        name: condition.name,
+        class: concreteCondition(condition),
       },
     };
-    // 投稿条件クラスのデータ復元
-    if (editableData.postCondition.class == null) {
-      throw new Error(`editableData.postCondition.class=${editableData.postCondition.class}`);
-    }
-    editableData.postCondition.class.setData(r.post_condition);
     // 作業中データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
     let foundIndex = -1;
     if (
