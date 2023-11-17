@@ -6,10 +6,10 @@ export class DaysLaterCondition implements Condition {
   hoursMinutesString = "";
   startDateString = "";
 
-  static selectLabel = "〇日後の〇時〇分に投稿";
+  static selectLabel = "〇年〇月〇日から〇日後の〇時〇分に投稿";
   check(): boolean {
-    // 今の時間が境界時間を越えていたら条件成立
-    return this.today().getTime() > this.borderTime();
+    const today = new Date();
+    return today.getTime() > this.goalTime();
   }
   getData(): string {
     return JSON.stringify({
@@ -27,57 +27,43 @@ export class DaysLaterCondition implements Condition {
     this.startDateString = d.startDateString;
   }
 
-  // constructor(daysLater: number, hoursMinutesString: string, startDateString?: string) {
-  //   this.daysLater = daysLater;
-  //   this.hoursMinutesString = hoursMinutesString;
-  //   if (typeof startDateString !== "undefined") {
-  //     this.startDateString = startDateString;
-  //   } else {
-  //     // 起点日が設定されていないなら今日を起点日にする
-  //     const today = this.today();
-  //     this.startDateString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`; // 月はデータが0始まりなので調整する
-  //   }
-  // }
-
-  daysLaterString(): string {
-    if (this.daysLater == 0) {
-      return "今日";
-    } else {
-      return `${this.daysLater}日後`;
-    }
+  constructor() {
+    const today = new Date();
+    // 年月日のスウェーデン基準(sv-SE)はyyyy-MM-dd。これは<input type="date">で扱う形式と同一
+    this.startDateString = today.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+    this.hoursMinutesString = today.toLocaleTimeString("ja-JP", { timeZone: "Asia/Tokyo", hour: "2-digit", minute: "2-digit" });
   }
 
-  private today(): Date {
-    return new Date(Date.now());
+  goalDateString(): string {
+    const goal = new Date(this.goalTime());
+    return goal.toLocaleString("ja-JP", {
+      timeZone: "Asia/Tokyo",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
   }
-  private borderTime(): number {
-    // 起点日の情報構築
-    let startTime = 0;
-    {
-      const match = this.startDateString.match(/([0-9]+)-([0-9]+)-([0-9]+)/);
-      if (match?.length != 4) throw new Error(`this.startDateString=${this.startDateString}`);
-      const date = new Date();
-      date.setFullYear(Number(match[1]), Number(match[2]) - 1, Number(match[3])); // 月はデータが0始まりなので調整する
-      startTime = date.getTime();
-    }
-    // 経過日数の情報構築
-    let daysLaterTime = 0;
-    {
-      const daysLater = Math.max(this.daysLater, 0); // 0未満は0(当日)と扱う
-      const date = new Date();
-      date.setDate(daysLater);
-      daysLaterTime = date.getTime();
-    }
-    // 指定時分の情報構築
-    let hoursMinutesTime = 0;
-    {
-      const match = this.hoursMinutesString.match(/([0-9]+):([0-9]+)/);
-      if (match?.length != 3) throw new Error(`this.hoursMinutesString=${this.hoursMinutesString}`);
-      const date = new Date();
-      date.setHours(Number(match[1]), Number(match[2]), 0, 0);
-      hoursMinutesTime = date.getTime();
-    }
-    // 起点日 + 経過日数 + 指定時分 のUNIX時間を条件成立境界時間とする
-    return startTime + daysLaterTime + hoursMinutesTime;
+
+  private goalTime(): number {
+    return this.startTime() + this.daysLaterTime() + this.hoursMinutesTime();
+  }
+  private startTime(): number {
+    const match = this.startDateString.match(/([0-9]+)-([0-9]+)-([0-9]+)/);
+    if (match?.length != 4) throw new Error(`this.startDateString=${this.startDateString}`);
+    const date = new Date(0);
+    date.setFullYear(Number(match[1]), Number(match[2]) - 1, Number(match[3])); // 月はデータが0始まりなので調整する
+    return date.getTime();
+  }
+  private daysLaterTime(): number {
+    return this.daysLater * 86400000; // 86400000ミリ秒 = 1日
+  }
+  private hoursMinutesTime(): number {
+    const match = this.hoursMinutesString.match(/([0-9]+):([0-9]+)/);
+    if (match?.length != 3) throw new Error(`this.hoursMinutesString=${this.hoursMinutesString}`);
+    const date = new Date(0);
+    date.setHours(Number(match[1]), Number(match[2]));
+    return date.getTime();
   }
 }
