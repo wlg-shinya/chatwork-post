@@ -1,7 +1,7 @@
 import { Condition } from "./condition-interface";
 
-export class DaysLaterCondition implements Condition {
-  name = "DaysLaterCondition";
+export class DateTimeCondition implements Condition {
+  name = this.constructor.name;
   repeat = false;
   hoursMinutesString = "";
   startDateString = "";

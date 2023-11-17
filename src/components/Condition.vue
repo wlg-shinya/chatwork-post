@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
-import { Condition, concreteCondition, createCondition, DaysLaterCondition } from "../condition";
-import DaysLaterConditionComponent from "./DaysLaterCondition.vue";
+import { Condition, concreteCondition, createCondition, DateTimeCondition } from "../condition";
+import DateTimeConditionComponent from "./DateTimeCondition.vue";
 
 const props = defineProps<{
   condition: Condition | null;
@@ -13,7 +13,7 @@ const emit = defineEmits<{
 }>();
 
 const selectCondition = ref({
-  name: props.condition ? props.condition.name : "DaysLaterCondition",
+  name: props.condition ? props.condition.name : DateTimeCondition.name,
   class: props.condition,
 });
 
@@ -26,10 +26,10 @@ watchEffect(() => {
 <template>
   <template v-if="editting">
     <select v-model="selectCondition.name">
-      <option value="DaysLaterCondition">{{ DaysLaterCondition.selectLabel }}</option>
+      <option :value="DateTimeCondition.name">{{ DateTimeCondition.selectLabel }}</option>
     </select>
     <br />
   </template>
   <template v-if="condition == null" />
-  <DaysLaterConditionComponent v-else-if="condition.name == 'DaysLaterCondition'" :condition="concreteCondition(condition)" :editting="editting" />
+  <DateTimeConditionComponent v-else-if="condition.name == DateTimeCondition.name" :condition="concreteCondition(condition)" :editting="editting" />
 </template>

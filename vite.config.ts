@@ -12,5 +12,8 @@ export default ({ mode }) => {
 
   return defineConfig({
     plugins: [vue(), htmlPlugin()],
+    esbuild: {
+      keepNames: true,
+    },
   });
 };

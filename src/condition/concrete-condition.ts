@@ -1,10 +1,10 @@
 import { Condition } from "./condition-interface";
-import { DaysLaterCondition } from "./dayslater-condition";
+import { DateTimeCondition } from "./datetime-condition";
 
 export function concreteCondition(cond: Condition) {
   switch (cond.name) {
-    case "DaysLaterCondition":
-      return cond as DaysLaterCondition;
+    case DateTimeCondition.name:
+      return cond as DateTimeCondition;
     default:
       throw new Error(`cond.name=${cond.name}`);
   }
