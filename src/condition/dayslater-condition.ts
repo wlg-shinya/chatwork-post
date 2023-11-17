@@ -6,7 +6,8 @@ export class DaysLaterCondition implements Condition {
   hoursMinutesString = "";
   startDateString = "";
 
-  static selectLabel = "〇年〇月〇日から〇日後の〇時〇分に投稿";
+  // static selectLabel = "〇年〇月〇日から〇日後の〇時〇分に投稿";
+  static selectLabel = "指定の日付と時刻に投稿";
   check(): boolean {
     const today = new Date();
     return today.getTime() > this.goalTime();
