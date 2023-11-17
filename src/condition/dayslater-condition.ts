@@ -55,7 +55,7 @@ export class DaysLaterCondition implements Condition {
     let startTime = 0;
     {
       const match = this.startDateString.match(/([0-9]+)-([0-9]+)-([0-9]+)/);
-      if (match?.length != 4) throw new Error(`Invalid this.startDateString=${this.startDateString}`);
+      if (match?.length != 4) throw new Error(`this.startDateString=${this.startDateString}`);
       const date = new Date();
       date.setFullYear(Number(match[1]), Number(match[2]) - 1, Number(match[3])); // 月はデータが0始まりなので調整する
       startTime = date.getTime();
@@ -72,7 +72,7 @@ export class DaysLaterCondition implements Condition {
     let hoursMinutesTime = 0;
     {
       const match = this.hoursMinutesString.match(/([0-9]+):([0-9]+)/);
-      if (match?.length != 3) throw new Error(`Invalid this.hoursMinutesString=${this.hoursMinutesString}`);
+      if (match?.length != 3) throw new Error(`this.hoursMinutesString=${this.hoursMinutesString}`);
       const date = new Date();
       date.setHours(Number(match[1]), Number(match[2]), 0, 0);
       hoursMinutesTime = date.getTime();
