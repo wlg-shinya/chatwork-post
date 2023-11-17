@@ -163,6 +163,8 @@ function updateRegisteredData(data: WorkingData) {
     })
     .then(() => {
       updateWorkingData();
+      // 編集終了
+      data.editing = false;
     })
     .catch((err) => {
       throw err;
