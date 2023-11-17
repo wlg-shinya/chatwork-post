@@ -1,16 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import axios from "axios";
+import { RegisteredData } from "../types";
 import { Condition, concreteCondition, createCondition } from "../condition";
 import ConditionComponent from "./Condition.vue";
 
-interface RegisteredData {
-  id: number;
-  room_id: number;
-  body: string;
-  self_unread: boolean;
-  post_condition: string;
-}
 interface InputData {
   roomInfo: string;
   body: string;
