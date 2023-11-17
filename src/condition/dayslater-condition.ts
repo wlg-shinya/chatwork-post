@@ -9,8 +9,14 @@ export class DaysLaterCondition implements Condition {
   // static selectLabel = "〇年〇月〇日から〇日後の〇時〇分に投稿";
   static selectLabel = "指定の日付と時刻に投稿";
   check(): boolean {
+    // 完了済みなら以後チェックは通さない
+    if (this.completed) return false;
+    // 現在時間が目標時間を越えたらチェックを通す
     const today = new Date();
     return today.getTime() > this.goalTime();
+  }
+  update(): void {
+    this.completed = true;
   }
   getData(): string {
     return JSON.stringify({
@@ -18,14 +24,15 @@ export class DaysLaterCondition implements Condition {
       daysLater: this.daysLater,
       hoursMinutesString: this.hoursMinutesString,
       startDateString: this.startDateString,
+      completed: this.completed,
     });
   }
   setData(data: string) {
     const d = JSON.parse(data);
-    this.name = d.name;
     this.daysLater = d.daysLater;
     this.hoursMinutesString = d.hoursMinutesString;
     this.startDateString = d.startDateString;
+    this.completed = d.completed;
   }
 
   constructor() {
@@ -47,6 +54,7 @@ export class DaysLaterCondition implements Condition {
     });
   }
 
+  private completed = false;
   private goalTime(): number {
     return this.startTime() + this.daysLaterTime() + this.hoursMinutesTime();
   }
