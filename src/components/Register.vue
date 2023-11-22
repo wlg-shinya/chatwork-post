@@ -182,7 +182,7 @@ function cancelEdit(data: WorkingData) {
   updateWorkingData();
 }
 
-// ページ表示や更新のときに行う処理
+// ページ表示や更新のときは作業中データを最新情報で更新
 updateWorkingData();
 </script>
 
