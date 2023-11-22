@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import axios from "axios";
-import { RegisteredData } from "../types";
+import { RegisteredData, RegisteredDataUserInput } from "../types";
 import { Condition, concreteCondition, restoreCondition } from "../condition";
+import ApiTokenInput from "./ApiTokenInput.vue";
 import ConditionComponent from "./Condition.vue";
 
 interface InputData {
@@ -16,6 +17,7 @@ interface InputData {
 }
 interface WorkingData {
   id: number;
+  api_token: string;
   editableData: InputData;
   editing: boolean;
 }
@@ -30,6 +32,7 @@ const newInputData = ref<InputData>({
   },
 });
 const workingData = ref<WorkingData[]>([]);
+const apiToken = ref("");
 
 const sortedWorkingData = computed(() => workingData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
 
@@ -70,6 +73,7 @@ async function updateWorkingData() {
     else {
       workingData.value.push({
         id: r.id,
+        api_token: r.api_token,
         editableData: editableData,
         editing: false,
       });
@@ -96,13 +100,15 @@ function register() {
   if (newInputData.value.postCondition.class == null) {
     throw new Error(`newInputData.value.postCondition.class=${newInputData.value.postCondition.class}`);
   }
+  const data: RegisteredDataUserInput = {
+    api_token: apiToken.value,
+    room_id: getRoomId(newInputData.value.roomInfo),
+    body: newInputData.value.body,
+    self_unread: newInputData.value.selfUnread,
+    post_condition: newInputData.value.postCondition.class.getData(),
+  };
   axios
-    .post("/api/db_register", {
-      room_id: getRoomId(newInputData.value.roomInfo),
-      body: newInputData.value.body,
-      self_unread: newInputData.value.selfUnread,
-      post_condition: newInputData.value.postCondition.class.getData(),
-    })
+    .post("/api/db_register", data)
     .then(() => {
       updateWorkingData();
     })
@@ -121,6 +127,7 @@ async function getRegisteredDataAll(): Promise<RegisteredData[]> {
         data.forEach((x: any) => {
           dataArray.push({
             id: x.id,
+            api_token: x.api_token,
             room_id: x.room_id,
             body: x.body,
             self_unread: x.self_unread,
@@ -139,14 +146,16 @@ function updateRegisteredData(data: WorkingData) {
   if (data.editableData.postCondition.class == null) {
     throw new Error(`data.editableData.postCondition.class=${data.editableData.postCondition.class}`);
   }
+  const putData: RegisteredData = {
+    id: data.id,
+    api_token: data.api_token,
+    room_id: getRoomId(data.editableData.roomInfo),
+    body: data.editableData.body,
+    self_unread: data.editableData.selfUnread,
+    post_condition: data.editableData.postCondition.class.getData(),
+  };
   axios
-    .put("/api/db_register", {
-      id: data.id,
-      room_id: getRoomId(data.editableData.roomInfo),
-      body: data.editableData.body,
-      self_unread: data.editableData.selfUnread,
-      post_condition: data.editableData.postCondition.class.getData(),
-    })
+    .put("/api/db_register", putData)
     .then(() => {
       updateWorkingData();
       // 編集終了
@@ -187,6 +196,7 @@ updateWorkingData();
 </script>
 
 <template>
+  <ApiTokenInput @onInputApiToken="apiToken = $event" />
   <table>
     <thead>
       <tr>

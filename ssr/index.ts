@@ -9,8 +9,6 @@ import { concreteCondition, restoreCondition } from "../src/condition";
 // 環境変数の読み込み
 import dotenv from "dotenv";
 dotenv.config({ path: ".env" });
-import dotenvLocal from "dotenv";
-dotenvLocal.config({ path: ".env.local" });
 
 // リクエストボディから値を得る
 function bodyValue({ req, name, defaultValue = null, outputLog = true }: { req: any; name: string; defaultValue?: any; outputLog?: boolean }) {
@@ -49,6 +47,7 @@ async function getRegisteredDataAll(): Promise<RegisteredData[]> {
   return rows.map((x: RegisteredData) => {
     const registeredData: RegisteredData = {
       id: x.id,
+      api_token: x.api_token,
       room_id: x.room_id,
       body: x.body,
       self_unread: x.self_unread,
@@ -60,17 +59,16 @@ async function getRegisteredDataAll(): Promise<RegisteredData[]> {
 
 async function updateRegisteredData(data: RegisteredData) {
   await pgQuery(
-    `UPDATE register SET (room_id,body,self_unread,post_condition) = (${data.room_id},${data.body},${data.self_unread},${data.post_condition}) WHERE id=${data.id};`
+    `UPDATE register SET (api_token,room_id,body,self_unread,post_condition) = (${data.api_token},${data.room_id},${data.body},${data.self_unread},${data.post_condition}) WHERE id=${data.id};`
   );
 }
 
-const CHATWORK_API_TOKEN = process.env.VITE_CHATWORK_API_TOKEN ?? "";
-function chatworkPostMessage(roomId: number, body: string, selfUnread: boolean) {
+function chatworkPostMessage(apiToken: string, roomId: number, body: string, selfUnread: boolean) {
   const config = {
     headers: {
       accept: "application/json",
       "content-type": "application/x-www-form-urlencoded",
-      "x-chatworktoken": CHATWORK_API_TOKEN,
+      "x-chatworktoken": apiToken,
     },
   };
   // https://developer.chatwork.com/reference/post-rooms-room_id-messages
@@ -79,6 +77,7 @@ function chatworkPostMessage(roomId: number, body: string, selfUnread: boolean) 
     self_unread: selfUnread ? 1 : 0,
   };
   console.log(`[${date()}] POST https://api.chatwork.com/v2/rooms/${roomId}/messages`);
+  console.log(`[${date()}]   api_token=${apiToken}`);
   console.log(`[${date()}]   body=${data.body}`);
   console.log(`[${date()}]   self_unread=${data.self_unread}`);
   axios.post(`https://api.chatwork.com/v2/rooms/${roomId}/messages`, data, config).catch((err) => {
@@ -97,11 +96,12 @@ async function pollingChatworkPostMessage() {
       const condition = concreteCondition(restoreCondition(data.post_condition));
       if (condition.check()) {
         // 条件を満たしたので実際にチャットへ投稿
-        chatworkPostMessage(data.room_id, data.body, data.self_unread);
+        chatworkPostMessage(data.api_token, data.room_id, data.body, data.self_unread);
         condition.update();
         // 条件更新後の情報をDBに反映
         updateRegisteredData({
           id: data.id,
+          api_token: `'${data.api_token}'`,
           room_id: data.room_id,
           body: `'${data.body}'`,
           self_unread: data.self_unread,
@@ -116,8 +116,6 @@ async function pollingChatworkPostMessage() {
 function displayInfo() {
   // URL＆ポート番号
   console.log(`[${date()}] Server URL: ${process.env.VITE_BASE_URL}:${port}`);
-  // ChatworkAPIが利用可能かどうか
-  console.log(`[${date()}] Chatwork API: ${CHATWORK_API_TOKEN ? "available!" : "unavailable..."}`);
   // API一覧
   const routingList = RoutingList({ app });
   const routingListKeys = Object.keys(routingList);
@@ -149,11 +147,14 @@ app.get("/api/db_register", async (req: any, res: any) => {
 
 app.post("/api/db_register", (req: any, res: any) => {
   console.log(`[${date()}] POST /api/db_register`);
+  const api_token = `'${bodyValue({ req: req, name: "api_token" })}'`;
   const room_id = Number(bodyValue({ req: req, name: "room_id" }));
   const body = `'${bodyValue({ req: req, name: "body" })}'`;
   const self_unread = bodyValue({ req: req, name: "self_unread" });
   const post_condition = `'${bodyValue({ req: req, name: "post_condition" })}'`;
-  pgQuery(`INSERT INTO register (room_id,body,self_unread,post_condition) VALUES (${room_id},${body},${self_unread},${post_condition});`)
+  pgQuery(
+    `INSERT INTO register (api_token,room_id,body,self_unread,post_condition) VALUES (${api_token},${room_id},${body},${self_unread},${post_condition});`
+  )
     .then(() => {
       res.send();
     })
@@ -166,6 +167,7 @@ app.put("/api/db_register", async (req: any, res: any) => {
   console.log(`[${date()}] PUT /api/db_register`);
   await updateRegisteredData({
     id: Number(bodyValue({ req: req, name: "id" })),
+    api_token: `'${bodyValue({ req: req, name: "api_token" })}'`,
     room_id: Number(bodyValue({ req: req, name: "room_id" })),
     body: `'${bodyValue({ req: req, name: "body" })}'`,
     self_unread: bodyValue({ req: req, name: "self_unread" }),

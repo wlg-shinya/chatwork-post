@@ -1,1 +1,1 @@
-export type { RegisteredData } from "./registered-data";
+export type { RegisteredData, RegisteredDataUserInput } from "./registered-data";
