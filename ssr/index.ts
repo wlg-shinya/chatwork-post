@@ -10,9 +10,10 @@ import { concreteCondition, restoreCondition } from "../src/condition";
 import dotenv from "dotenv";
 dotenv.config({ path: ".env" });
 
-// リクエストボディから値を得る
-function bodyValue({ req, name, defaultValue = null, outputLog = true }: { req: any; name: string; defaultValue?: any; outputLog?: boolean }) {
-  if (typeof req.body[name] === "undefined") {
+// 指定リクエストデータの指定要素名から値を得る
+// reqDataにはreq.queryかreq.bodyを指定
+function reqValue({ reqData, name, defaultValue = null, outputLog = true }: { reqData: any; name: string; defaultValue?: any; outputLog?: boolean }) {
+  if (typeof reqData[name] === "undefined") {
     if (defaultValue === null) {
       // 要素が見つからない場合
       // defaultValue を指定されていなければ指定必須なので例外投げる
@@ -24,8 +25,21 @@ function bodyValue({ req, name, defaultValue = null, outputLog = true }: { req: 
     }
   } else {
     // 要素が見つかったらその値を返す
-    if (outputLog) console.log(`[${date()}]   ${name}=${req.body[name]}`);
-    return req.body[name];
+    if (outputLog) console.log(`[${date()}]   ${name}=${reqData[name]}`);
+    return reqData[name];
+  }
+}
+
+// 汎用エラーハンドラ
+// https://qiita.com/yuta-katayama-23/items/5b8bf72236eec9cadf41
+function errorHandler(res: any, error: any) {
+  if (error.response) {
+    res.status(error.response.status).send({
+      error: error.response.data,
+      errorMsg: error.message,
+    });
+  } else {
+    res.status(500).send({ errorMsg: error.message });
   }
 }
 
@@ -76,11 +90,11 @@ function chatworkPostMessage(apiToken: string, roomId: number, body: string, sel
     body: body,
     self_unread: selfUnread ? 1 : 0,
   };
-  console.log(`[${date()}] POST https://api.chatwork.com/v2/rooms/${roomId}/messages`);
-  console.log(`[${date()}]   api_token=${apiToken}`);
+  const url = `https://api.chatwork.com/v2/rooms/${roomId}/messages`;
+  console.log(`[${date()}] POST ${url}`);
   console.log(`[${date()}]   body=${data.body}`);
   console.log(`[${date()}]   self_unread=${data.self_unread}`);
-  axios.post(`https://api.chatwork.com/v2/rooms/${roomId}/messages`, data, config).catch((err) => {
+  axios.post(url, data, config).catch((err) => {
     throw err;
   });
 }
@@ -147,43 +161,82 @@ app.get("/api/db_register", async (req: any, res: any) => {
 
 app.post("/api/db_register", (req: any, res: any) => {
   console.log(`[${date()}] POST /api/db_register`);
-  const api_token = `'${bodyValue({ req: req, name: "api_token" })}'`;
-  const room_id = Number(bodyValue({ req: req, name: "room_id" }));
-  const body = `'${bodyValue({ req: req, name: "body" })}'`;
-  const self_unread = bodyValue({ req: req, name: "self_unread" });
-  const post_condition = `'${bodyValue({ req: req, name: "post_condition" })}'`;
-  pgQuery(
-    `INSERT INTO register (api_token,room_id,body,self_unread,post_condition) VALUES (${api_token},${room_id},${body},${self_unread},${post_condition});`
-  )
-    .then(() => {
-      res.send();
-    })
-    .catch((err) => {
-      throw err;
-    });
+  try {
+    const api_token = `'${reqValue({ reqData: req.body, name: "api_token" })}'`;
+    const room_id = Number(reqValue({ reqData: req.body, name: "room_id" }));
+    const body = `'${reqValue({ reqData: req.body, name: "body" })}'`;
+    const self_unread = reqValue({ reqData: req.body, name: "self_unread" });
+    const post_condition = `'${reqValue({ reqData: req.body, name: "post_condition" })}'`;
+    pgQuery(
+      `INSERT INTO register (api_token,room_id,body,self_unread,post_condition) VALUES (${api_token},${room_id},${body},${self_unread},${post_condition});`
+    )
+      .then(() => {
+        res.send();
+      })
+      .catch((error) => {
+        errorHandler(res, error);
+      });
+  } catch (error) {
+    errorHandler(res, error);
+  }
 });
 
 app.put("/api/db_register", async (req: any, res: any) => {
   console.log(`[${date()}] PUT /api/db_register`);
-  await updateRegisteredData({
-    id: Number(bodyValue({ req: req, name: "id" })),
-    api_token: `'${bodyValue({ req: req, name: "api_token" })}'`,
-    room_id: Number(bodyValue({ req: req, name: "room_id" })),
-    body: `'${bodyValue({ req: req, name: "body" })}'`,
-    self_unread: bodyValue({ req: req, name: "self_unread" }),
-    post_condition: `'${bodyValue({ req: req, name: "post_condition" })}'`,
-  });
-  res.send();
+  try {
+    await updateRegisteredData({
+      id: Number(reqValue({ reqData: req.body, name: "id" })),
+      api_token: `'${reqValue({ reqData: req.body, name: "api_token" })}'`,
+      room_id: Number(reqValue({ reqData: req.body, name: "room_id" })),
+      body: `'${reqValue({ reqData: req.body, name: "body" })}'`,
+      self_unread: reqValue({ reqData: req.body, name: "self_unread" }),
+      post_condition: `'${reqValue({ reqData: req.body, name: "post_condition" })}'`,
+    });
+    res.send();
+  } catch (error) {
+    errorHandler(res, error);
+  }
 });
 
 app.delete("/api/db_register", (req: any, res: any) => {
   console.log(`[${date()}] DELETE /api/db_register`);
-  const id = Number(bodyValue({ req: req, name: "id" }));
-  pgQuery(`DELETE FROM register WHERE id=${id};`)
-    .then(() => {
-      res.send();
-    })
-    .catch((err) => {
-      throw err;
-    });
+  try {
+    const id = Number(reqValue({ reqData: req.body, name: "id" }));
+    pgQuery(`DELETE FROM register WHERE id=${id};`)
+      .then(() => {
+        res.send();
+      })
+      .catch((error) => {
+        errorHandler(res, error);
+      });
+  } catch (error) {
+    errorHandler(res, error);
+  }
+});
+
+app.get("/api/chatwork_account", async (req: any, res: any) => {
+  console.log(`[${date()}] GET /api/chatwork_account`);
+  try {
+    const api_token = reqValue({ reqData: req.query, name: "api_token" });
+
+    const config = {
+      headers: {
+        accept: "application/json",
+        "x-chatworktoken": api_token,
+      },
+    };
+    // https://developer.chatwork.com/reference/get-me
+    const url = "https://api.chatwork.com/v2/me";
+    console.log(`[${date()}] GET ${url}`);
+    axios
+      .get(url, config)
+      .then((response) => {
+        res.json(response.data);
+      })
+      .catch((error) => {
+        errorHandler(res, error);
+      });
+  } catch (error) {
+    errorHandler(res, error);
+  }
 });

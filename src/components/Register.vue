@@ -196,57 +196,59 @@ updateWorkingData();
 </script>
 
 <template>
-  <ApiTokenInput @onInputApiToken="apiToken = $event" />
-  <table>
-    <thead>
-      <tr>
-        <th>投稿先チャット部屋ID</th>
-        <th>投稿予定文</th>
-        <th>投稿者にとっても未読にするか</th>
-        <th>投稿する条件</th>
-        <th colspan="2"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><input v-model="newInputData.roomInfo" placeholder="IDかURLを入力してください" /></td>
-        <td><textarea v-model="newInputData.body"></textarea></td>
-        <td><input type="checkbox" v-model="newInputData.selfUnread" /></td>
-        <td>
-          <ConditionComponent
-            :condition="newInputData.postCondition.class"
-            :editting="true"
-            @onSelectedCondition="newInputData.postCondition.class = concreteCondition($event)"
-          />
-        </td>
-        <td colspan="2"><button @click="register">新規登録</button></td>
-      </tr>
-      <tr v-for="d in sortedWorkingData" :key="d.id">
-        <template v-if="d.editing">
-          <td><input v-model="d.editableData.roomInfo" /></td>
-          <td><textarea v-model="d.editableData.body"></textarea></td>
-          <td><input type="checkbox" v-model="d.editableData.selfUnread" /></td>
+  <ApiTokenInput @onUpdateApiToken="apiToken = $event" />
+  <template v-if="apiToken != ''">
+    <table>
+      <thead>
+        <tr>
+          <th>投稿先チャット部屋ID</th>
+          <th>投稿予定文</th>
+          <th>投稿者にとっても未読にするか</th>
+          <th>投稿する条件</th>
+          <th colspan="2"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input v-model="newInputData.roomInfo" placeholder="IDかURLを入力してください" /></td>
+          <td><textarea v-model="newInputData.body"></textarea></td>
+          <td><input type="checkbox" v-model="newInputData.selfUnread" /></td>
           <td>
             <ConditionComponent
-              :condition="d.editableData.postCondition.class"
-              :editting="d.editing"
-              @onSelectedCondition="d.editableData.postCondition.class = concreteCondition($event)"
+              :condition="newInputData.postCondition.class"
+              :editting="true"
+              @onSelectedCondition="newInputData.postCondition.class = concreteCondition($event)"
             />
           </td>
-          <td><button @click="updateRegisteredData(d)">更新</button></td>
-          <td><button @click="cancelEdit(d)">キャンセル</button></td>
-        </template>
-        <template v-else>
-          <td>{{ d.editableData.roomInfo }}</td>
-          <td>{{ d.editableData.body }}</td>
-          <td>{{ d.editableData.selfUnread }}</td>
-          <td>
-            <ConditionComponent :condition="d.editableData.postCondition.class" :editting="d.editing" />
-          </td>
-          <td><button @click="startEdit(d)">編集</button></td>
-          <td><button @click="deleteRegisteredData(d.id)">削除</button></td>
-        </template>
-      </tr>
-    </tbody>
-  </table>
+          <td colspan="2"><button @click="register">新規登録</button></td>
+        </tr>
+        <tr v-for="d in sortedWorkingData" :key="d.id">
+          <template v-if="d.editing">
+            <td><input v-model="d.editableData.roomInfo" /></td>
+            <td><textarea v-model="d.editableData.body"></textarea></td>
+            <td><input type="checkbox" v-model="d.editableData.selfUnread" /></td>
+            <td>
+              <ConditionComponent
+                :condition="d.editableData.postCondition.class"
+                :editting="d.editing"
+                @onSelectedCondition="d.editableData.postCondition.class = concreteCondition($event)"
+              />
+            </td>
+            <td><button @click="updateRegisteredData(d)">更新</button></td>
+            <td><button @click="cancelEdit(d)">キャンセル</button></td>
+          </template>
+          <template v-else>
+            <td>{{ d.editableData.roomInfo }}</td>
+            <td>{{ d.editableData.body }}</td>
+            <td>{{ d.editableData.selfUnread }}</td>
+            <td>
+              <ConditionComponent :condition="d.editableData.postCondition.class" :editting="d.editing" />
+            </td>
+            <td><button @click="startEdit(d)">編集</button></td>
+            <td><button @click="deleteRegisteredData(d.id)">削除</button></td>
+          </template>
+        </tr>
+      </tbody>
+    </table>
+  </template>
 </template>

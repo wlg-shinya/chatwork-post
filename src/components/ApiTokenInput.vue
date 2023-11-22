@@ -1,18 +1,64 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, computed } from "vue";
+import axios from "axios";
 
 const emit = defineEmits<{
-  onInputApiToken: [token: string];
+  onUpdateApiToken: [token: string];
 }>();
 
 const apiToken = ref("");
+const accountName = ref("");
 
-watchEffect(() => {
-  emit("onInputApiToken", apiToken.value);
-});
+const displayAccountName = computed(() => (accountName.value ? `ようこそ ${accountName.value} さん` : ""));
+
+function signin() {
+  // サインイン開始時はアカウント名を無効化
+  accountName.value = "";
+
+  try {
+    // APIトークンが未入力ならエラー
+    if (apiToken.value == "") throw new Error();
+
+    // APIトークンからアカウント名を取得するためサーバに問い合わせる
+    axios
+      .get("/api/chatwork_account", {
+        params: {
+          api_token: apiToken.value,
+        },
+      })
+      .then((response: any) => {
+        const data = JSON.parse(JSON.stringify(response.data));
+        accountName.value = data.name;
+
+        // アカウント名が取得できた時はAPIトークン更新を通知する
+        emit("onUpdateApiToken", apiToken.value);
+      })
+      .catch((error) => {
+        throw error;
+      });
+  } catch {
+    // エラーが発生したらサインアウト
+    signout();
+  }
+}
+
+function signout() {
+  // 情報をクリアすることでサインアウントとする
+  accountName.value = "";
+  apiToken.value = "";
+  // APIトークンが無効になったことを通知する
+  emit("onUpdateApiToken", apiToken.value);
+}
+
+// ページ表示や更新のときはサインアウト
+signout();
 </script>
 
 <template>
-  <label for="api-token">投稿したいアカウントの Chatwork API トークンを入力してください</label>
+  <label for="api-token">投稿したいアカウントの Chatwork API トークンでサインインしてください</label>
+  <br />
   <input id="api-token" v-model="apiToken" />
+  <button id="api-token" @click="signin()">サインイン</button>
+  <br />
+  <span>{{ displayAccountName }}</span>
 </template>
