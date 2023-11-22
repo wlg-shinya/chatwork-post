@@ -27,13 +27,13 @@ const pg = {
           .then((res: any) => {
             response = res;
           })
-          .catch((err: any) => {
-            throw err;
+          .catch((error: any) => {
+            throw error;
           })
           .finally(() => client.release());
       })
-      .catch((err: any) => {
-        throw err;
+      .catch((error: any) => {
+        throw error;
       });
     return response;
   },

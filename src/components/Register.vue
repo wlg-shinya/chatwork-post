@@ -112,8 +112,8 @@ function register() {
     .then(() => {
       updateWorkingData();
     })
-    .catch((err) => {
-      throw err;
+    .catch((error) => {
+      throw error;
     });
 }
 
@@ -136,8 +136,8 @@ async function getRegisteredDataAll(): Promise<RegisteredData[]> {
         });
       }
     })
-    .catch((err) => {
-      throw err;
+    .catch((error) => {
+      throw error;
     });
   return dataArray;
 }
@@ -161,8 +161,8 @@ function updateRegisteredData(data: WorkingData) {
       // 編集終了
       data.editing = false;
     })
-    .catch((err) => {
-      throw err;
+    .catch((error) => {
+      throw error;
     });
 }
 
@@ -176,8 +176,8 @@ function deleteRegisteredData(id: number) {
     .then(() => {
       updateWorkingData();
     })
-    .catch((err) => {
-      throw err;
+    .catch((error) => {
+      throw error;
     });
 }
 
