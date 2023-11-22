@@ -136,10 +136,8 @@ const port = process.env.VITE_BACKEND_PORT ?? "";
 app.listen(port, () => {
   // チャット投稿監視開始
   pollingChatworkPostMessage();
-
   // 情報表示
   displayInfo();
-
   // 以降、ログ出力を待機
   console.log(`[${date()}] Log:`);
 });

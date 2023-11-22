@@ -190,7 +190,7 @@ updateWorkingData();
   <table>
     <thead>
       <tr>
-        <th>チャット部屋ID</th>
+        <th>投稿先チャット部屋ID</th>
         <th>投稿予定文</th>
         <th>投稿者にとっても未読にするか</th>
         <th>投稿する条件</th>
@@ -199,7 +199,7 @@ updateWorkingData();
     </thead>
     <tbody>
       <tr>
-        <td><input v-model="newInputData.roomInfo" /></td>
+        <td><input v-model="newInputData.roomInfo" placeholder="IDかURLを入力してください" /></td>
         <td><textarea v-model="newInputData.body"></textarea></td>
         <td><input type="checkbox" v-model="newInputData.selfUnread" /></td>
         <td>
