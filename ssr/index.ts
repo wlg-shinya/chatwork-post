@@ -30,9 +30,9 @@ function reqValue({ reqData, name, defaultValue = null, outputLog = true }: { re
   }
 }
 
-// 汎用エラーハンドラ
+// HTTPエラーハンドラ
 // https://qiita.com/yuta-katayama-23/items/5b8bf72236eec9cadf41
-function errorHandler(res: any, error: any) {
+function httpErrorHandler(res: any, error: any) {
   if (error.response) {
     res.status(error.response.status).send({
       error: error.response.data,
@@ -174,10 +174,10 @@ app.post("/api/db_register", (req: any, res: any) => {
         res.send();
       })
       .catch((error) => {
-        errorHandler(res, error);
+        httpErrorHandler(res, error);
       });
   } catch (error) {
-    errorHandler(res, error);
+    httpErrorHandler(res, error);
   }
 });
 
@@ -194,7 +194,7 @@ app.put("/api/db_register", async (req: any, res: any) => {
     });
     res.send();
   } catch (error) {
-    errorHandler(res, error);
+    httpErrorHandler(res, error);
   }
 });
 
@@ -207,10 +207,10 @@ app.delete("/api/db_register", (req: any, res: any) => {
         res.send();
       })
       .catch((error) => {
-        errorHandler(res, error);
+        httpErrorHandler(res, error);
       });
   } catch (error) {
-    errorHandler(res, error);
+    httpErrorHandler(res, error);
   }
 });
 
@@ -234,9 +234,9 @@ app.get("/api/chatwork_account", async (req: any, res: any) => {
         res.json(response.data);
       })
       .catch((error) => {
-        errorHandler(res, error);
+        httpErrorHandler(res, error);
       });
   } catch (error) {
-    errorHandler(res, error);
+    httpErrorHandler(res, error);
   }
 });
