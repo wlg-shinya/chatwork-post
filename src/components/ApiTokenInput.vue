@@ -6,7 +6,7 @@ const emit = defineEmits<{
   onUpdateApiToken: [token: string];
 }>();
 
-const apiToken = ref("");
+const apiToken = ref(""); // TODO:ローカルストレージ保存対応
 const accountName = ref("");
 
 const displayAccountName = computed(() => (accountName.value ? `ようこそ ${accountName.value} さん` : ""));

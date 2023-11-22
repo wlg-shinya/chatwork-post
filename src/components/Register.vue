@@ -117,6 +117,7 @@ function register() {
     });
 }
 
+// TODO:ALLではなく自身のAPIトークンのみ取得
 async function getRegisteredDataAll(): Promise<RegisteredData[]> {
   const dataArray: RegisteredData[] = [];
   await axios
