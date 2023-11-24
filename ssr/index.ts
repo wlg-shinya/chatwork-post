@@ -94,8 +94,8 @@ function chatworkPostMessage(apiToken: string, roomId: number, body: string, sel
   console.log(`[${date()}] POST ${url}`);
   console.log(`[${date()}]   body=${data.body}`);
   console.log(`[${date()}]   self_unread=${data.self_unread}`);
-  axios.post(url, data, config).catch((err) => {
-    throw err;
+  axios.post(url, data, config).catch((error) => {
+    throw error;
   });
 }
 
@@ -105,25 +105,32 @@ function chatworkPostMessage(apiToken: string, roomId: number, body: string, sel
 const POLLING_INTERVAL_SEC = 30;
 async function pollingChatworkPostMessage() {
   setTimeout(async () => {
-    const registeredDataArray = await getRegisteredDataAll();
-    registeredDataArray.forEach((data: RegisteredData) => {
-      const condition = concreteCondition(restoreCondition(data.post_condition));
-      if (condition.check()) {
-        // 条件を満たしたので実際にチャットへ投稿
-        chatworkPostMessage(data.api_token, data.room_id, data.body, data.self_unread);
-        condition.update();
-        // 条件更新後の情報をDBに反映
-        updateRegisteredData({
-          id: data.id,
-          api_token: `'${data.api_token}'`,
-          room_id: data.room_id,
-          body: `'${data.body}'`,
-          self_unread: data.self_unread,
-          post_condition: `'${condition.getData()}'`,
-        });
-      }
-    });
-    pollingChatworkPostMessage();
+    try {
+      const registeredDataArray = await getRegisteredDataAll();
+      registeredDataArray.forEach((data: RegisteredData) => {
+        const condition = concreteCondition(restoreCondition(data.post_condition));
+        if (condition.check()) {
+          // 条件を満たしたので実際にチャットへ投稿
+          chatworkPostMessage(data.api_token, data.room_id, data.body, data.self_unread);
+          condition.update();
+          // 条件更新後の情報をDBに反映
+          updateRegisteredData({
+            id: data.id,
+            api_token: `'${data.api_token}'`,
+            room_id: data.room_id,
+            body: `'${data.body}'`,
+            self_unread: data.self_unread,
+            post_condition: `'${condition.getData()}'`,
+          });
+        }
+      });
+    } catch (error) {
+      // エラー時は情報出力をしてプログラムは継続する
+      console.log(`[${date()}] ${error}`);
+    } finally {
+      // 処理の成功如何に関わらず監視を継続
+      pollingChatworkPostMessage();
+    }
   }, POLLING_INTERVAL_SEC * 1000);
 }
 
@@ -156,7 +163,11 @@ app.listen(port, () => {
 
 app.get("/api/db_register", async (req: any, res: any) => {
   console.log(`[${date()}] GET /api/db_register`);
-  res.json(await getRegisteredDataAll());
+  try {
+    res.json(await getRegisteredDataAll());
+  } catch (error) {
+    httpErrorHandler(res, error);
+  }
 });
 
 app.post("/api/db_register", (req: any, res: any) => {
