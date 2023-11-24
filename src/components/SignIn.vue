@@ -53,6 +53,8 @@ function signin() {
   } catch {
     // エラーが発生したらサインアウト
     signout();
+
+    // TODO:通知
   }
 }
 
