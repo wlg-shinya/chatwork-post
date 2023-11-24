@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watchEffect } from "vue";
 import axios from "axios";
 import { LocalStorage, DataSignIn, DataSignInDefault } from "../local-storage";
 
@@ -11,6 +11,19 @@ const displaySignInInfo = computed(() => (accountName.value ? `ようこそ ${ac
 
 const inputData = ref(LocalStorage.fetch<DataSignIn>());
 const accountName = ref("");
+
+// 自動サインインはセーブ拒否されたらできないので自動で無効化
+watchEffect(() => {
+  if (!inputData.value.isSavedApiToken) {
+    inputData.value.autoSignIn = false;
+  }
+});
+// セーブ許可は自動サインインを有効にしたら合わせて有効にする必要があるので自動で有効化
+watchEffect(() => {
+  if (inputData.value.autoSignIn) {
+    inputData.value.isSavedApiToken = true;
+  }
+});
 
 function saveLocalStorage() {
   // セーブ許可してたら入力情報を丸ごと、そうでなければデフォルトをローカルストレージに保存
