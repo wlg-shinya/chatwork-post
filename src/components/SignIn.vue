@@ -11,8 +11,15 @@ const localData = LocalStorage.fetch<DataSignIn>();
 
 const displaySignInInfo = computed(() => (accountName.value ? `ようこそ ${accountName.value} さん` : ""));
 
-const apiToken = ref("");
+const apiToken = ref(localData.apiToken);
+const autoSignIn = ref(localData.autoSignIn);
 const accountName = ref("");
+
+function saveLocalStorage() {
+  localData.apiToken = apiToken.value;
+  localData.autoSignIn = autoSignIn.value;
+  LocalStorage.save(localData);
+}
 
 function signin() {
   // サインイン開始時はアカウント名を無効化
@@ -34,12 +41,11 @@ function signin() {
         const data = JSON.parse(JSON.stringify(response.data));
         accountName.value = data.name;
 
-        // アカウント名が取得できたので入力されたAPIトークンを通知
+        // アカウント名が取得できたので有効なAPIトークンを通知
         emit("onUpdateApiToken", apiToken.value);
 
-        // 入力されたAPIトークンをローカルストレージに保存
-        localData.apiToken = apiToken.value;
-        LocalStorage.save(localData);
+        // 有効なAPIトークン得られたのでローカルストレージに保存
+        saveLocalStorage();
       })
       .catch((error) => {
         throw error;
@@ -56,20 +62,22 @@ function signout() {
   apiToken.value = "";
   // 無効化したAPIトークンを通知
   emit("onUpdateApiToken", apiToken.value);
-  // TODO：ユーザ選択対応
   // ローカルストレージに保存されているAPIトークンを復元
   apiToken.value = localData.apiToken;
 }
 
-// ページ表示や更新のときはサインアウト
-signout();
+// ページ表示や更新のとき、自動サインイン有効ならサインインを試みて、そうでなければサインアウト
+autoSignIn.value ? signin() : signout();
 </script>
 
 <template>
   <input id="api-token" v-model="apiToken" placeholder="ChatworkAPI トークン" />
   <button id="api-token" @click="signin()">サインイン</button>
+  <input type="checkbox" v-model="autoSignIn" />次回は自動サインイン
   <br />
   <a href="https://developer.chatwork.com/docs">ChatworkAPI トークンとは</a>
   <br />
-  <span>{{ displaySignInInfo }}</span>
+  <h1>
+    <span>{{ displaySignInInfo }}</span>
+  </h1>
 </template>
