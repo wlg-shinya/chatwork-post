@@ -52,8 +52,8 @@ function date() {
   return new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
 }
 
-async function getRegisteredDataAll(): Promise<RegisteredData[]> {
-  const result = await pgQuery(`select * from register;`);
+async function getRegisteredData(optQuery = ""): Promise<RegisteredData[]> {
+  const result = await pgQuery(`SELECT * FROM register ${optQuery};`);
   if (result == null) {
     throw new Error(`result='${result}'`);
   }
@@ -106,7 +106,7 @@ const POLLING_INTERVAL_SEC = 30;
 async function pollingChatworkPostMessage() {
   setTimeout(async () => {
     try {
-      const registeredDataArray = await getRegisteredDataAll();
+      const registeredDataArray = await getRegisteredData();
       registeredDataArray.forEach((data: RegisteredData) => {
         const condition = concreteCondition(restoreCondition(data.post_condition));
         if (condition.check()) {
@@ -164,7 +164,8 @@ app.listen(port, () => {
 app.get("/api/db_register", async (req: any, res: any) => {
   console.log(`[${date()}] GET /api/db_register`);
   try {
-    res.json(await getRegisteredDataAll());
+    const api_token = reqValue({ reqData: req.query, name: "api_token" });
+    res.json(await getRegisteredData(`WHERE api_token='${api_token}'`));
   } catch (error) {
     httpErrorHandler(res, error);
   }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import axios from "axios";
 import { RegisteredData, RegisteredDataUserInput } from "../types";
 import { Condition, concreteCondition, restoreCondition } from "../condition";
@@ -36,49 +36,60 @@ const apiToken = ref("");
 
 const sortedWorkingData = computed(() => workingData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
 
+// APIトークンが更新されたら作業中データも更新
+watch(apiToken, () => {
+  updateWorkingData();
+});
+
 // 登録済みデータを作業中データに反映させる
 async function updateWorkingData() {
-  const registeredData = await getRegisteredDataAll();
+  try {
+    const registeredData = await getRegisteredData();
 
-  // 登録済みデータから削除されたものがまだ作業中データに残っていたら除外する
-  workingData.value = workingData.value.filter((v) => registeredData.some((r) => r.id == v.id));
+    // 登録済みデータから削除されたものがまだ作業中データに残っていたら除外する
+    workingData.value = workingData.value.filter((v) => registeredData.some((r) => r.id == v.id));
 
-  registeredData.forEach((r: RegisteredData) => {
-    // 編集可能データを構築
-    const condition = restoreCondition(r.post_condition);
-    const editableData: InputData = {
-      roomInfo: r.room_id.toString(),
-      body: r.body,
-      selfUnread: r.self_unread,
-      postCondition: {
-        name: condition.name,
-        class: concreteCondition(condition),
-      },
-    };
-    // 作業中データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
-    let foundIndex = -1;
-    if (
-      workingData.value.some((v, i) => {
-        if (v.id == r.id) foundIndex = i;
-        return v.id == r.id;
-      })
-    ) {
-      const foundWorkingData = workingData.value[foundIndex];
-      // 編集ではない作業中データのみ上書きすることで編集中のデータをリセットさせないようにする
-      if (!foundWorkingData.editing) {
-        foundWorkingData.editableData = editableData;
+    registeredData.forEach((r: RegisteredData) => {
+      // 編集可能データを構築
+      const condition = restoreCondition(r.post_condition);
+      const editableData: InputData = {
+        roomInfo: r.room_id.toString(),
+        body: r.body,
+        selfUnread: r.self_unread,
+        postCondition: {
+          name: condition.name,
+          class: concreteCondition(condition),
+        },
+      };
+      // 作業中データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
+      let foundIndex = -1;
+      if (
+        workingData.value.some((v, i) => {
+          if (v.id == r.id) foundIndex = i;
+          return v.id == r.id;
+        })
+      ) {
+        const foundWorkingData = workingData.value[foundIndex];
+        // 編集ではない作業中データのみ上書きすることで編集中のデータをリセットさせないようにする
+        if (!foundWorkingData.editing) {
+          foundWorkingData.editableData = editableData;
+        }
       }
-    }
-    // 初取得した登録済みデータなら作業中データに新規登録
-    else {
-      workingData.value.push({
-        id: r.id,
-        api_token: r.api_token,
-        editableData: editableData,
-        editing: false,
-      });
-    }
-  });
+      // 初取得した登録済みデータなら作業中データに新規登録
+      else {
+        workingData.value.push({
+          id: r.id,
+          api_token: r.api_token,
+          editableData: editableData,
+          editing: false,
+        });
+      }
+    });
+  } catch (error) {
+    // エラー情報はログに流すが処理は止めない
+    console.error(error);
+    return;
+  }
 }
 
 function getRoomId(roomInfo: string | number): number {
@@ -117,11 +128,17 @@ function register() {
     });
 }
 
-// TODO:ALLではなく自身のAPIトークンのみ取得
-async function getRegisteredDataAll(): Promise<RegisteredData[]> {
+async function getRegisteredData(): Promise<RegisteredData[]> {
+  if (!apiToken.value) {
+    throw new Error(`apiToken.value = ${apiToken.value}`);
+  }
   const dataArray: RegisteredData[] = [];
   await axios
-    .get("/api/db_register")
+    .get("/api/db_register", {
+      params: {
+        api_token: apiToken.value,
+      },
+    })
     .then((response: any) => {
       const data = JSON.parse(JSON.stringify(response.data));
       if (data.length > 0) {
@@ -191,9 +208,6 @@ function cancelEdit(data: WorkingData) {
   // 登録済み情報を更新することで編集したデータを破棄
   updateWorkingData();
 }
-
-// ページ表示や更新のときは作業中データを最新情報で更新
-updateWorkingData();
 </script>
 
 <template>
