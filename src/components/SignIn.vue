@@ -12,13 +12,24 @@ const localData = LocalStorage.fetch<DataSignIn>();
 const displaySignInInfo = computed(() => (accountName.value ? `ようこそ ${accountName.value} さん` : ""));
 
 const apiToken = ref(localData.apiToken);
+const isSavedApiToken = ref(localData.isSavedApiToken);
 const autoSignIn = ref(localData.autoSignIn);
 const accountName = ref("");
 
 function saveLocalStorage() {
-  localData.apiToken = apiToken.value;
-  localData.autoSignIn = autoSignIn.value;
-  LocalStorage.save(localData);
+  LocalStorage.save(
+    isSavedApiToken.value
+      ? {
+          apiToken: apiToken.value,
+          isSavedApiToken: isSavedApiToken.value,
+          autoSignIn: autoSignIn.value,
+        }
+      : {
+          apiToken: "",
+          isSavedApiToken: false,
+          autoSignIn: false,
+        }
+  );
 }
 
 function signin() {
@@ -74,8 +85,9 @@ autoSignIn.value ? signin() : signout();
 
 <template>
   <input id="api-token" v-model="apiToken" placeholder="ChatworkAPI トークン" />
-  <button id="api-token" @click="signin()">サインイン</button>
-  <input type="checkbox" v-model="autoSignIn" />次回は自動サインイン
+  <button id="api-token" @click="signin()">サインイン</button><br />
+  <input type="checkbox" v-model="isSavedApiToken" />ブラウザに保存する<br />
+  <input type="checkbox" v-model="autoSignIn" />次回から自動サインイン
   <br />
   <a href="https://developer.chatwork.com/docs">ChatworkAPI トークンとは</a>
   <br />
