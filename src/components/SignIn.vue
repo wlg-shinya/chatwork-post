@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import axios from "axios";
+import { LocalStorage, DataSignIn } from "../local-storage";
 
 const emit = defineEmits<{
   onUpdateApiToken: [token: string];
 }>();
 
-const apiToken = ref(""); // TODO:ローカルストレージ保存対応
-const accountName = ref("");
+const localData = LocalStorage.fetch<DataSignIn>();
 
-const displayAccountName = computed(() => (accountName.value ? `ようこそ ${accountName.value} さん` : ""));
+const displaySignInInfo = computed(() => (accountName.value ? `ようこそ ${accountName.value} さん` : ""));
+
+const apiToken = ref("");
+const accountName = ref("");
 
 function signin() {
   // サインイン開始時はアカウント名を無効化
@@ -27,11 +30,16 @@ function signin() {
         },
       })
       .then((response: any) => {
+        // アカウント名を取得
         const data = JSON.parse(JSON.stringify(response.data));
         accountName.value = data.name;
 
-        // アカウント名が取得できた時はAPIトークン更新を通知する
+        // アカウント名が取得できたので入力されたAPIトークンを通知
         emit("onUpdateApiToken", apiToken.value);
+
+        // 入力されたAPIトークンをローカルストレージに保存
+        localData.apiToken = apiToken.value;
+        LocalStorage.save(localData);
       })
       .catch((error) => {
         throw error;
@@ -46,8 +54,11 @@ function signout() {
   // 情報をクリアすることでサインアウントとする
   accountName.value = "";
   apiToken.value = "";
-  // APIトークンが無効になったことを通知する
+  // 無効化したAPIトークンを通知
   emit("onUpdateApiToken", apiToken.value);
+  // TODO：ユーザ選択対応
+  // ローカルストレージに保存されているAPIトークンを復元
+  apiToken.value = localData.apiToken;
 }
 
 // ページ表示や更新のときはサインアウト
@@ -60,5 +71,5 @@ signout();
   <br />
   <a href="https://developer.chatwork.com/docs">ChatworkAPI トークンとは</a>
   <br />
-  <span>{{ displayAccountName }}</span>
+  <span>{{ displaySignInInfo }}</span>
 </template>
