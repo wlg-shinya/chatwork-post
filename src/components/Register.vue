@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import axios from "axios";
 import { RegisteredData, RegisteredDataUserInput } from "../types";
 import { Condition, concreteCondition, restoreCondition } from "../condition";
-import ApiTokenInput from "./ApiTokenInput.vue";
+import SignIn from "./SignIn.vue";
 import ConditionComponent from "./Condition.vue";
 
 interface InputData {
@@ -197,7 +197,7 @@ updateWorkingData();
 </script>
 
 <template>
-  <ApiTokenInput @onUpdateApiToken="apiToken = $event" />
+  <SignIn @onUpdateApiToken="apiToken = $event" />
   <template v-if="apiToken != ''">
     <table>
       <thead>
