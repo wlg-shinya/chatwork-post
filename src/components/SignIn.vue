@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect } from "vue";
 import axios from "axios";
-import { LocalStorage, DataSignIn, DataSignInDefault } from "../local-storage";
+import { SignIn as LocalStorage } from "../local-storage";
 
 const emit = defineEmits<{
   onUpdateApiToken: [token: string];
@@ -9,7 +9,7 @@ const emit = defineEmits<{
 
 const displaySignInInfo = computed(() => (accountName.value ? `ようこそ ${accountName.value} さん` : ""));
 
-const inputData = ref(LocalStorage.fetch<DataSignIn>());
+const inputData = ref(LocalStorage.fetch());
 const accountName = ref("");
 
 // 自動サインインはセーブ拒否されたらできないので自動で無効化
@@ -27,7 +27,7 @@ watchEffect(() => {
 
 function saveLocalStorage() {
   // セーブ許可してたら入力情報を丸ごと、そうでなければデフォルトをローカルストレージに保存
-  LocalStorage.save(inputData.value.isSavedApiToken ? inputData.value : DataSignInDefault);
+  LocalStorage.save(inputData.value.isSavedApiToken ? inputData.value : LocalStorage.defaultData);
 }
 
 function signin() {
@@ -73,7 +73,7 @@ function signout() {
   // 無効なAPIトークンを通知
   emit("onUpdateApiToken", "");
   // 入力情報はセーブ許可してたらローカルストレージに保存されているデータで復元。そうでなければデフォルトでリセット
-  inputData.value = inputData.value.isSavedApiToken ? LocalStorage.fetch<DataSignIn>() : DataSignInDefault;
+  inputData.value = inputData.value.isSavedApiToken ? LocalStorage.fetch() : LocalStorage.defaultData;
 }
 
 // ページ表示や更新のとき、自動サインイン有効ならサインインを試みる。そうでなければサインアウト
