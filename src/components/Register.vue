@@ -3,8 +3,11 @@ import { ref, computed, watch } from "vue";
 import axios from "axios";
 import { RegisteredData, RegisteredDataUserInput } from "../types";
 import { Condition, concreteCondition, restoreCondition } from "../condition";
-import SignIn from "./SignIn.vue";
 import ConditionComponent from "./Condition.vue";
+
+const props = defineProps<{
+  apiToken: string;
+}>();
 
 interface InputData {
   roomInfo: string;
@@ -32,14 +35,16 @@ const newInputData = ref<InputData>({
   },
 });
 const workingData = ref<WorkingData[]>([]);
-const apiToken = ref("");
 
 const sortedWorkingData = computed(() => workingData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
 
 // APIトークンが更新されたら作業中データも更新
-watch(apiToken, () => {
-  updateWorkingData();
-});
+watch(
+  () => props.apiToken,
+  () => {
+    updateWorkingData();
+  }
+);
 
 // 登録済みデータを作業中データに反映させる
 async function updateWorkingData() {
@@ -112,7 +117,7 @@ function register() {
     throw new Error(`newInputData.value.postCondition.class=${newInputData.value.postCondition.class}`);
   }
   const data: RegisteredDataUserInput = {
-    api_token: apiToken.value,
+    api_token: props.apiToken,
     room_id: getRoomId(newInputData.value.roomInfo),
     body: newInputData.value.body,
     self_unread: newInputData.value.selfUnread,
@@ -129,14 +134,14 @@ function register() {
 }
 
 async function getRegisteredData(): Promise<RegisteredData[]> {
-  if (!apiToken.value) {
-    throw new Error(`apiToken.value = ${apiToken.value}`);
+  if (!props.apiToken) {
+    throw new Error(`props.apiToken = ${props.apiToken}`);
   }
   const dataArray: RegisteredData[] = [];
   await axios
     .get("/api/db_register", {
       params: {
-        api_token: apiToken.value,
+        api_token: props.apiToken,
       },
     })
     .then((response: any) => {
@@ -211,8 +216,7 @@ function cancelEdit(data: WorkingData) {
 </script>
 
 <template>
-  <SignIn @onUpdateApiToken="apiToken = $event" />
-  <template v-if="apiToken != ''">
+  <template v-if="apiToken">
     <table>
       <thead>
         <tr>

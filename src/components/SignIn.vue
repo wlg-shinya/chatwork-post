@@ -79,7 +79,7 @@ autoSignIn.value ? signin() : signout();
   <br />
   <a href="https://developer.chatwork.com/docs">ChatworkAPI トークンとは</a>
   <br />
-  <h1>
+  <h2>
     <span>{{ displaySignInInfo }}</span>
-  </h1>
+  </h2>
 </template>
