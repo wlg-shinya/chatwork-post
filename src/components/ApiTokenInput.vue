@@ -55,10 +55,10 @@ signout();
 </script>
 
 <template>
-  <label for="api-token">投稿したいアカウントの Chatwork API トークンでサインインしてください</label>
-  <br />
-  <input id="api-token" v-model="apiToken" />
+  <input id="api-token" v-model="apiToken" placeholder="ChatworkAPI トークン" />
   <button id="api-token" @click="signin()">サインイン</button>
+  <br />
+  <a href="https://developer.chatwork.com/docs">ChatworkAPI トークンとは</a>
   <br />
   <span>{{ displayAccountName }}</span>
 </template>
