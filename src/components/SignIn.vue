@@ -1,35 +1,20 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import axios from "axios";
-import { LocalStorage, DataSignIn } from "../local-storage";
+import { LocalStorage, DataSignIn, DataSignInDefault } from "../local-storage";
 
 const emit = defineEmits<{
   onUpdateApiToken: [token: string];
 }>();
 
-const localData = LocalStorage.fetch<DataSignIn>();
-
 const displaySignInInfo = computed(() => (accountName.value ? `ようこそ ${accountName.value} さん` : ""));
 
-const apiToken = ref(localData.apiToken);
-const isSavedApiToken = ref(localData.isSavedApiToken);
-const autoSignIn = ref(localData.autoSignIn);
+const inputData = ref(LocalStorage.fetch<DataSignIn>());
 const accountName = ref("");
 
 function saveLocalStorage() {
-  LocalStorage.save(
-    isSavedApiToken.value
-      ? {
-          apiToken: apiToken.value,
-          isSavedApiToken: isSavedApiToken.value,
-          autoSignIn: autoSignIn.value,
-        }
-      : {
-          apiToken: "",
-          isSavedApiToken: false,
-          autoSignIn: false,
-        }
-  );
+  // セーブ許可してたら入力情報を丸ごと、そうでなければデフォルトをローカルストレージに保存
+  LocalStorage.save(inputData.value.isSavedApiToken ? inputData.value : DataSignInDefault);
 }
 
 function signin() {
@@ -38,13 +23,13 @@ function signin() {
 
   try {
     // APIトークンが未入力ならエラー
-    if (apiToken.value == "") throw new Error();
+    if (inputData.value.apiToken == "") throw new Error();
 
     // APIトークンからアカウント名を取得するためサーバに問い合わせる
     axios
       .get("/api/chatwork_account", {
         params: {
-          api_token: apiToken.value,
+          api_token: inputData.value.apiToken,
         },
       })
       .then((response: any) => {
@@ -53,7 +38,7 @@ function signin() {
         accountName.value = data.name;
 
         // アカウント名が取得できたので有効なAPIトークンを通知
-        emit("onUpdateApiToken", apiToken.value);
+        emit("onUpdateApiToken", inputData.value.apiToken);
 
         // 有効なAPIトークン得られたのでローカルストレージに保存
         saveLocalStorage();
@@ -72,22 +57,21 @@ function signin() {
 function signout() {
   // 情報をクリアすることでサインアウントとする
   accountName.value = "";
-  apiToken.value = "";
-  // 無効化したAPIトークンを通知
-  emit("onUpdateApiToken", apiToken.value);
-  // ローカルストレージに保存されているAPIトークンを復元
-  apiToken.value = localData.apiToken;
+  // 無効なAPIトークンを通知
+  emit("onUpdateApiToken", "");
+  // 入力情報はセーブ許可してたらローカルストレージに保存されているデータで復元。そうでなければデフォルトでリセット
+  inputData.value = inputData.value.isSavedApiToken ? LocalStorage.fetch<DataSignIn>() : DataSignInDefault;
 }
 
-// ページ表示や更新のとき、自動サインイン有効ならサインインを試みて、そうでなければサインアウト
-autoSignIn.value ? signin() : signout();
+// ページ表示や更新のとき、自動サインイン有効ならサインインを試みる。そうでなければサインアウト
+inputData.value.autoSignIn ? signin() : signout();
 </script>
 
 <template>
-  <input id="api-token" v-model="apiToken" placeholder="ChatworkAPI トークン" />
+  <input id="api-token" v-model="inputData.apiToken" placeholder="ChatworkAPI トークン" />
   <button id="api-token" @click="signin()">サインイン</button><br />
-  <input type="checkbox" v-model="isSavedApiToken" />ブラウザに保存する<br />
-  <input type="checkbox" v-model="autoSignIn" />次回から自動サインイン
+  <input type="checkbox" v-model="inputData.isSavedApiToken" />ブラウザに保存する<br />
+  <input type="checkbox" v-model="inputData.autoSignIn" />次回から自動サインイン
   <br />
   <a href="https://developer.chatwork.com/docs">ChatworkAPI トークンとは</a>
   <br />
