@@ -217,21 +217,27 @@ function cancelEdit(data: WorkingData) {
 
 <template>
   <template v-if="apiToken">
-    <table>
+    <table class="table table-bordered table-hover align-middle text-center">
       <thead>
         <tr>
-          <th>投稿先チャット部屋ID</th>
-          <th>投稿予定文</th>
-          <th>投稿者にとっても未読にするか</th>
-          <th>投稿する条件</th>
-          <th colspan="2"></th>
+          <th class="col-2">投稿先チャット部屋ID</th>
+          <th class="col-auto">投稿予定文</th>
+          <th class="col-1">投稿者にとっても未読にするか</th>
+          <th class="col-3">投稿する条件</th>
+          <th class="col-2" colspan="2"></th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><input v-model="newInputData.roomInfo" placeholder="IDかURLを入力してください" /></td>
-          <td><textarea v-model="newInputData.body"></textarea></td>
-          <td><input type="checkbox" v-model="newInputData.selfUnread" /></td>
+          <td>
+            <input v-model="newInputData.roomInfo" placeholder="IDかURLを入力してください" class="input-room-info form-control" />
+          </td>
+          <td><textarea v-model="newInputData.body" class="input-body form-control"></textarea></td>
+          <td>
+            <div class="form-switch">
+              <input type="checkbox" v-model="newInputData.selfUnread" class="form-check-input" />
+            </div>
+          </td>
           <td>
             <ConditionComponent
               :condition="newInputData.postCondition.class"
@@ -239,13 +245,17 @@ function cancelEdit(data: WorkingData) {
               @onSelectedCondition="newInputData.postCondition.class = concreteCondition($event)"
             />
           </td>
-          <td colspan="2"><button @click="register">新規登録</button></td>
+          <td colspan="2"><button @click="register" class="btn btn-primary">新規登録</button></td>
         </tr>
         <tr v-for="d in sortedWorkingData" :key="d.id">
           <template v-if="d.editing">
-            <td><input v-model="d.editableData.roomInfo" /></td>
-            <td><textarea v-model="d.editableData.body"></textarea></td>
-            <td><input type="checkbox" v-model="d.editableData.selfUnread" /></td>
+            <td><input v-model="d.editableData.roomInfo" class="input-room-info form-control" /></td>
+            <td><textarea v-model="d.editableData.body" class="input-body form-control"></textarea></td>
+            <td>
+              <div class="form-switch">
+                <input type="checkbox" v-model="d.editableData.selfUnread" class="form-check-input" />
+              </div>
+            </td>
             <td>
               <ConditionComponent
                 :condition="d.editableData.postCondition.class"
@@ -253,21 +263,44 @@ function cancelEdit(data: WorkingData) {
                 @onSelectedCondition="d.editableData.postCondition.class = concreteCondition($event)"
               />
             </td>
-            <td><button @click="updateRegisteredData(d)">更新</button></td>
-            <td><button @click="cancelEdit(d)">キャンセル</button></td>
+            <td><button @click="updateRegisteredData(d)" class="btn btn-primary">更新</button></td>
+            <td><button @click="cancelEdit(d)" class="btn btn-outline-primary">キャンセル</button></td>
           </template>
           <template v-else>
             <td>{{ d.editableData.roomInfo }}</td>
-            <td>{{ d.editableData.body }}</td>
-            <td>{{ d.editableData.selfUnread }}</td>
+            <td>
+              <pre class="text-start">{{ d.editableData.body }}</pre>
+            </td>
+            <td>{{ d.editableData.selfUnread ? "はい" : "いいえ" }}</td>
             <td>
               <ConditionComponent :condition="d.editableData.postCondition.class" :editting="d.editing" />
             </td>
-            <td><button @click="startEdit(d)">編集</button></td>
-            <td><button @click="deleteRegisteredData(d.id)">削除</button></td>
+            <td><button @click="startEdit(d)" class="btn btn-primary">編集</button></td>
+            <td><button @click="deleteRegisteredData(d.id)" class="btn btn-danger">削除</button></td>
           </template>
         </tr>
       </tbody>
     </table>
   </template>
 </template>
+
+<style>
+th {
+  /* なぜかth要素にはbootstrapのalign-middleが適用されないので直接指定 */
+  vertical-align: middle;
+}
+
+.input-room-info {
+  width: 350px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.input-body {
+  width: 100%;
+  min-width: 600px;
+  height: 150px;
+  margin-right: auto;
+  margin-left: auto;
+}
+</style>
