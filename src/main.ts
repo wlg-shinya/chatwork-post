@@ -6,4 +6,7 @@ import App from "./App.vue";
 import axios from "axios";
 axios.defaults.baseURL = `${import.meta.env.VITE_BASE_URL}:${import.meta.env.VITE_BACKEND_PORT}`;
 
-createApp(App).mount("#app");
+// bootstrap
+import * as bootstrap from "bootstrap";
+
+createApp(App).use(bootstrap).mount("#app");
