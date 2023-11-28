@@ -81,14 +81,27 @@ inputData.value.autoSignIn ? signin() : signout();
 </script>
 
 <template>
-  <input id="api-token" v-model="inputData.apiToken" placeholder="ChatworkAPI トークン" />
-  <button id="api-token" @click="signin()">サインイン</button><br />
-  <input type="checkbox" v-model="inputData.isSavedApiToken" />ブラウザに保存する<br />
-  <input type="checkbox" v-model="inputData.autoSignIn" />次回から自動サインイン
-  <br />
-  <a href="https://developer.chatwork.com/docs">ChatworkAPI トークンとは</a>
-  <br />
-  <h2>
-    <span>{{ displaySignInInfo }}</span>
-  </h2>
+  <div class="d-flex flex-column">
+    <div class="d-flex flex-column align-items-center">
+      <label for="api-token" class="form-label">投稿したいアカウントの ChatworkAPI トークンを入力してください</label>
+      <input id="api-token" v-model="inputData.apiToken" class="form-control" style="width: 350px" aria-describedby="chatworkapi-help" />
+      <div id="chatworkapi-help" class="form-text">
+        <a href="https://developer.chatwork.com/docs" class="link-primary">ChatworkAPI トークンとは</a>
+      </div>
+      <button id="api-token" @click="signin()" class="btn btn-primary btn-lg">サインイン</button>
+    </div>
+    <div class="align-self-center">
+      <div class="form-switch">
+        <input type="checkbox" v-model="inputData.isSavedApiToken" class="form-check-input" />
+        <span class="form-label">ブラウザに保存する</span>
+      </div>
+      <div class="form-switch">
+        <input type="checkbox" v-model="inputData.autoSignIn" class="form-check-input" />
+        <span class="form-label">次回から自動サインイン</span>
+      </div>
+    </div>
+    <div class="align-self-center">
+      <h2>{{ displaySignInInfo }}</h2>
+    </div>
+  </div>
 </template>
