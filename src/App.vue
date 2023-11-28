@@ -9,9 +9,15 @@ const apiToken = ref("");
 </script>
 
 <template>
-  <h1>{{ APP_TITLE }}</h1>
-  <SignIn @onUpdateApiToken="apiToken = $event" />
-  <Suspense>
-    <Register :apiToken="apiToken" />
-  </Suspense>
+  <div class="card">
+    <div class="card-header">
+      <h1 class="text-center">{{ APP_TITLE }}</h1>
+    </div>
+    <div class="card-body">
+      <SignIn @onUpdateApiToken="apiToken = $event" />
+      <Suspense>
+        <Register :apiToken="apiToken" />
+      </Suspense>
+    </div>
+  </div>
 </template>
