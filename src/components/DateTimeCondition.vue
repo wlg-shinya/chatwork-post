@@ -4,6 +4,8 @@ defineProps<{
   condition: DateTimeCondition;
   editting: boolean;
 }>();
+
+// TODO:propsの直接書き換えをやめてemitを使うようにする
 </script>
 
 <template>
