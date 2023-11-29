@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 import axios from "axios";
 import { RegisteredData, RegisteredDataUserInput } from "../types";
 import { Condition, concreteCondition, restoreCondition } from "../condition";
@@ -35,16 +35,22 @@ const newInputData = ref<InputData>({
   },
 });
 const workingData = ref<WorkingData[]>([]);
+const roomNameTable = ref<Record<string, string>>({});
 
 const sortedWorkingData = computed(() => workingData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
 
 // APIトークンが更新されたら作業中データも更新
 watch(
   () => props.apiToken,
-  () => {
-    updateWorkingData();
-  }
+  () => updateWorkingData()
 );
+
+// 部屋情報から部屋名をテーブル化して後から参照できるようにする
+watchEffect(() => {
+  workingData.value.forEach(async (x) => {
+    roomNameTable.value[x.editableData.roomInfo] = await getRoomName(x.editableData.roomInfo);
+  });
+});
 
 // 登録済みデータを作業中データに反映させる
 async function updateWorkingData() {
@@ -97,7 +103,7 @@ async function updateWorkingData() {
   }
 }
 
-function getRoomId(roomInfo: string | number): number {
+function getRoomId(roomInfo: string): number {
   if (typeof roomInfo === "number") {
     // 数値の場合はそのまま扱う
     return roomInfo;
@@ -110,6 +116,44 @@ function getRoomId(roomInfo: string | number): number {
   } else {
     throw new Error(`roomInfo=${roomInfo}`);
   }
+}
+
+async function getRoomName(roomInfo: string): Promise<string> {
+  let name = "";
+  try {
+    const roomId = getRoomId(roomInfo);
+    await axios
+      .get("/api/chatwork_room", {
+        params: {
+          api_token: props.apiToken,
+          room_id: roomId,
+        },
+      })
+      .then((response: any) => {
+        const data = JSON.parse(JSON.stringify(response.data));
+        console.log(data);
+        switch (data.type) {
+          case "my":
+            name = "マイチャット";
+            break;
+          case "direct":
+            name = `DM:${data.name}`;
+            break;
+          case "group":
+          default:
+            name = data.name;
+            break;
+        }
+      })
+      .catch((error) => {
+        throw error;
+      });
+  } catch (error) {
+    // エラー情報はログに流すが処理は止めない
+    console.error(error);
+    name = "ERROR";
+  }
+  return name;
 }
 
 function register() {
@@ -220,7 +264,7 @@ function cancelEdit(data: WorkingData) {
     <table class="table table-bordered table-hover align-middle text-center">
       <thead>
         <tr>
-          <th class="col-2">投稿先チャット部屋ID</th>
+          <th class="col-2">投稿先チャット部屋</th>
           <th class="col-auto">投稿予定文</th>
           <th class="col-1">投稿者にとっても未読にするか</th>
           <th class="col-3">投稿する条件</th>
@@ -249,7 +293,7 @@ function cancelEdit(data: WorkingData) {
         </tr>
         <tr v-for="d in sortedWorkingData" :key="d.id">
           <template v-if="d.editing">
-            <td><input v-model="d.editableData.roomInfo" class="input-room-info form-control" /></td>
+            <td><input v-model="d.editableData.roomInfo" placeholder="IDかURLを入力してください" class="input-room-info form-control" /></td>
             <td><textarea v-model="d.editableData.body" class="input-body form-control"></textarea></td>
             <td>
               <div class="form-switch">
@@ -267,7 +311,7 @@ function cancelEdit(data: WorkingData) {
             <td><button @click="cancelEdit(d)" class="btn btn-outline-primary">キャンセル</button></td>
           </template>
           <template v-else>
-            <td>{{ d.editableData.roomInfo }}</td>
+            <td>{{ roomNameTable[d.editableData.roomInfo] }}</td>
             <td>
               <pre class="text-start">{{ d.editableData.body }}</pre>
             </td>
