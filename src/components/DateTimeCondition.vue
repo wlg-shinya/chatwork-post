@@ -8,33 +8,35 @@ defineProps<{
 
 <template>
   <template v-if="editting">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-5 p-0">
-          <input type="date" v-model="condition.startDateString" class="form-control" />
-        </div>
-        <div class="col-4 p-0">
-          <input type="time" v-model="condition.hoursMinutesString" class="form-control" />
-        </div>
-        <div class="col-3 p-0">
-          <span>に投稿する</span>
+    <div class="text-start">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-5 p-0">
+            <input type="date" v-model="condition.startDateString" class="form-control" />
+          </div>
+          <div class="col-4 p-0">
+            <input type="time" v-model="condition.hoursMinutesString" class="form-control" />
+          </div>
+          <div class="col-3 p-0 align-self-center">
+            <span>に投稿する</span>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="container-fluid text-start">
-      <div class="row align-items-center">
-        <div class="col-4 form-switch align-self-center">
-          <input type="checkbox" v-model="condition.repeat" class="form-check-input" id="repeat" />
-          <label class="form-label" for="repeat">繰り返す</label>
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-3 form-switch">
+            <input type="checkbox" v-model="condition.repeat" class="form-check-input" id="repeat" />
+            <label class="form-label m-0" for="repeat">繰り返す</label>
+          </div>
+          <template v-if="condition.repeat">
+            <div class="col-3 p-0">
+              <input type="number" v-model="condition.repeatIntervalDay" class="form-control" />
+            </div>
+            <div class="col-auto p-0">
+              <span>日ごと</span>
+            </div>
+          </template>
         </div>
-        <template v-if="condition.repeat">
-          <div class="col-4 p-0">
-            <input type="number" v-model="condition.repeatIntervalDay" class="form-control" />
-          </div>
-          <div class="col-auto p-0">
-            <span>日ごと</span>
-          </div>
-        </template>
       </div>
     </div>
   </template>
