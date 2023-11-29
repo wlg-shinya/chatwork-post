@@ -29,27 +29,33 @@ watchEffect(() => {
 // サインインフラグは変更時点でストレージ保存する
 watch(
   () => inputData.value.isSavedApiToken,
-  (value) => {
-    const newData = LocalStorage.fetch();
-    newData.isSavedApiToken = value;
-    if (!value) {
-      newData.apiToken = ""; // APIトークン保存拒否の場合はAPIトークン自体も無効化
-    }
-    LocalStorage.save(newData);
-  }
+  () => saveLocalStorageIsSavedApiToken()
 );
 watch(
   () => inputData.value.autoSignIn,
-  (value) => {
-    const newData = LocalStorage.fetch();
-    newData.autoSignIn = value;
-    LocalStorage.save(newData);
-  }
+  () => saveLocalStorageAutoSignIn()
 );
 
-function saveApiToken() {
+function saveLocalStorageApiToken() {
   const newData = LocalStorage.fetch();
+  // APIトークン保存拒否時は無効なデータを保存
   newData.apiToken = newData.isSavedApiToken ? inputData.value.apiToken : "";
+  LocalStorage.save(newData);
+}
+
+function saveLocalStorageIsSavedApiToken() {
+  const newData = LocalStorage.fetch();
+  newData.isSavedApiToken = inputData.value.isSavedApiToken;
+  // APIトークン保存拒否の場合はAPIトークン自体も無効化
+  if (!newData.isSavedApiToken) {
+    newData.apiToken = "";
+  }
+  LocalStorage.save(newData);
+}
+
+function saveLocalStorageAutoSignIn() {
+  const newData = LocalStorage.fetch();
+  newData.autoSignIn = inputData.value.autoSignIn;
   LocalStorage.save(newData);
 }
 
@@ -77,7 +83,7 @@ async function signin() {
         emit("onUpdateApiToken", inputData.value.apiToken);
 
         // 有効なAPIトークンを得られたのでローカルストレージに保存
-        saveApiToken();
+        saveLocalStorageApiToken();
       })
       .catch((error) => {
         throw error;
