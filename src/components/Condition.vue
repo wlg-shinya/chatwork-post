@@ -24,12 +24,14 @@ watchEffect(() => {
 </script>
 
 <template>
+  <!-- TODO:Condition が2種類以上になったら選択可能にする
   <template v-if="editting">
     <select v-model="selectCondition.name" class="form-select">
       <option :value="DateTimeCondition.name">{{ DateTimeCondition.selectLabel }}</option>
     </select>
     <hr class="m-1" />
-  </template>
+  </template> 
+  -->
   <template v-if="condition == null" />
   <DateTimeConditionComponent v-else-if="condition.name == DateTimeCondition.name" :condition="concreteCondition(condition)" :editting="editting" />
 </template>
