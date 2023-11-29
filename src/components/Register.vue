@@ -5,6 +5,7 @@ import { Toast } from "bootstrap";
 import { RegisteredData, RegisteredDataUserInput } from "../types";
 import { Condition, concreteCondition, restoreCondition } from "../condition";
 import ConditionComponent from "./Condition.vue";
+import ToRoomMemberSelector from "./ToRoomMemberSelector.vue";
 
 const props = defineProps<{
   apiToken: string;
@@ -132,7 +133,6 @@ async function getRoomName(roomInfo: string): Promise<string> {
       })
       .then((response: any) => {
         const data = JSON.parse(JSON.stringify(response.data));
-        console.log(data);
         switch (data.type) {
           case "my":
             name = "マイチャット";
@@ -294,7 +294,14 @@ function notifyWarning(delegate: Function) {
           <td>
             <input v-model="newInputData.roomInfo" placeholder="IDかURLを入力してください" class="input-room-info form-control" />
           </td>
-          <td><textarea v-model="newInputData.body" class="input-body form-control"></textarea></td>
+          <td>
+            <ToRoomMemberSelector
+              :apiToken="apiToken"
+              :roomId="getRoomId(newInputData.roomInfo)"
+              @onDecideToRoomMember="newInputData.body += $event"
+            />
+            <textarea v-model="newInputData.body" class="input-body form-control"></textarea>
+          </td>
           <td>
             <div class="form-switch">
               <input type="checkbox" v-model="newInputData.selfUnread" class="form-check-input" />
@@ -312,7 +319,9 @@ function notifyWarning(delegate: Function) {
         <tr v-for="d in sortedWorkingData" :key="d.id">
           <template v-if="d.editing">
             <td><input v-model="d.editableData.roomInfo" placeholder="IDかURLを入力してください" class="input-room-info form-control" /></td>
-            <td><textarea v-model="d.editableData.body" class="input-body form-control"></textarea></td>
+            <td>
+              <textarea v-model="d.editableData.body" class="input-body form-control"></textarea>
+            </td>
             <td>
               <div class="form-switch">
                 <input type="checkbox" v-model="d.editableData.selfUnread" class="form-check-input" />

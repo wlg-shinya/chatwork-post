@@ -280,3 +280,31 @@ app.get("/api/chatwork_room", async (req: any, res: any) => {
     httpErrorHandler(res, error);
   }
 });
+
+app.get("/api/chatwork_room_members", async (req: any, res: any) => {
+  console.log(`[${date()}] GET /api/chatwork_room_members`);
+  try {
+    const api_token = reqValue({ reqData: req.query, name: "api_token" });
+    const room_id = reqValue({ reqData: req.query, name: "room_id" });
+
+    const config = {
+      headers: {
+        accept: "application/json",
+        "x-chatworktoken": api_token,
+      },
+    };
+    // https://developer.chatwork.com/reference/get-rooms-room_id-members
+    const url = `https://api.chatwork.com/v2/rooms/${room_id}/members`;
+    console.log(`[${date()}] GET ${url}`);
+    axios
+      .get(url, config)
+      .then((response) => {
+        res.json(response.data);
+      })
+      .catch((error) => {
+        httpErrorHandler(res, error);
+      });
+  } catch (error) {
+    httpErrorHandler(res, error);
+  }
+});
