@@ -91,13 +91,13 @@ inputData.value.autoSignIn ? signin() : signout();
       <button id="api-token" @click="signin()" class="btn btn-primary btn-lg">サインイン</button>
     </div>
     <div class="align-self-center">
-      <div class="form-switch">
+      <div class="form-check form-switch">
         <input type="checkbox" v-model="inputData.isSavedApiToken" class="form-check-input" id="isSavedApiToken" />
-        <label class="form-label" for="isSavedApiToken">ブラウザに保存する</label>
+        <label class="form-check-label" for="isSavedApiToken">ブラウザに保存する</label>
       </div>
-      <div class="form-switch">
+      <div class="form-check form-switch">
         <input type="checkbox" v-model="inputData.autoSignIn" class="form-check-input" id="autoSignIn" />
-        <label class="form-label" for="autoSignIn">次回から自動サインイン</label>
+        <label class="form-check-label" for="autoSignIn">次回から自動サインイン</label>
       </div>
     </div>
     <div class="align-self-center">

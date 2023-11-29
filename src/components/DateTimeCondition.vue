@@ -24,9 +24,9 @@ defineProps<{
       </div>
       <div class="container-fluid">
         <div class="row align-items-center">
-          <div class="col-3 form-switch">
+          <div class="col-3 form-check form-switch">
             <input type="checkbox" v-model="condition.repeat" class="form-check-input" id="repeat" />
-            <label class="form-label m-0" for="repeat">繰り返す</label>
+            <label class="form-check-label m-0" for="repeat">繰り返す</label>
           </div>
           <template v-if="condition.repeat">
             <div class="col-3 p-0">
