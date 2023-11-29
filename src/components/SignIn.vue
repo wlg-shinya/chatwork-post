@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect } from "vue";
+import { ref, computed, watchEffect, watch } from "vue";
 import axios from "axios";
 import { Toast } from "bootstrap";
 import { SignIn as LocalStorage } from "../local-storage";
@@ -26,12 +26,34 @@ watchEffect(() => {
   }
 });
 
-function saveLocalStorage() {
-  // セーブ許可してたら入力情報を丸ごと、そうでなければデフォルトをローカルストレージに保存
-  LocalStorage.save(inputData.value.isSavedApiToken ? inputData.value : LocalStorage.defaultData);
+// サインインフラグは変更時点でストレージ保存する
+watch(
+  () => inputData.value.isSavedApiToken,
+  (value) => {
+    const newData = LocalStorage.fetch();
+    newData.isSavedApiToken = value;
+    if (!value) {
+      newData.apiToken = ""; // APIトークン保存拒否の場合はAPIトークン自体も無効化
+    }
+    LocalStorage.save(newData);
+  }
+);
+watch(
+  () => inputData.value.autoSignIn,
+  (value) => {
+    const newData = LocalStorage.fetch();
+    newData.autoSignIn = value;
+    LocalStorage.save(newData);
+  }
+);
+
+function saveApiToken() {
+  const newData = LocalStorage.fetch();
+  newData.apiToken = newData.isSavedApiToken ? inputData.value.apiToken : "";
+  LocalStorage.save(newData);
 }
 
-function signin() {
+async function signin() {
   // サインイン開始時はアカウント名を無効化
   accountName.value = "";
 
@@ -40,7 +62,7 @@ function signin() {
     if (inputData.value.apiToken == "") throw new Error();
 
     // APIトークンからアカウント名を取得するためサーバに問い合わせる
-    axios
+    await axios
       .get("/api/chatwork_account", {
         params: {
           api_token: inputData.value.apiToken,
@@ -54,8 +76,8 @@ function signin() {
         // アカウント名が取得できたので有効なAPIトークンを通知
         emit("onUpdateApiToken", inputData.value.apiToken);
 
-        // 有効なAPIトークン得られたのでローカルストレージに保存
-        saveLocalStorage();
+        // 有効なAPIトークンを得られたのでローカルストレージに保存
+        saveApiToken();
       })
       .catch((error) => {
         throw error;
@@ -70,12 +92,11 @@ function signin() {
 }
 
 function signout() {
-  // 情報をクリアすることでサインアウントとする
+  // 取得したアカウント名をクリアすることでサインアウントとする
   accountName.value = "";
+  inputData.value = LocalStorage.fetch();
   // 無効なAPIトークンを通知
   emit("onUpdateApiToken", "");
-  // 入力情報はセーブ許可してたらローカルストレージに保存されているデータで復元。そうでなければデフォルトでリセット
-  inputData.value = inputData.value.isSavedApiToken ? LocalStorage.fetch() : LocalStorage.defaultData;
 }
 
 function notifyError() {
