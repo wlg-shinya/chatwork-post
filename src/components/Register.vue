@@ -57,13 +57,9 @@ watchEffect(() => {
 // 登録済みデータを作業中データに反映させる
 async function updateWorkingData() {
   try {
+    // 登録済みデータをもとにした未編集の作業中データを構築
     const registeredData = await getRegisteredData();
-
-    // 登録済みデータから削除されたものがまだ作業中データに残っていたら除外する
-    workingData.value = workingData.value.filter((v) => registeredData.some((r) => r.id == v.id));
-
-    registeredData.forEach((r: RegisteredData) => {
-      // 編集可能データを構築
+    const noEdittingWorkingData = registeredData.map((r): WorkingData => {
       const condition = restoreCondition(r.post_condition);
       const editableData: InputData = {
         roomInfo: r.room_id.toString(),
@@ -74,30 +70,34 @@ async function updateWorkingData() {
           class: concreteCondition(condition),
         },
       };
-      // 作業中データ側に登録済みデータと一致するIDがあれば編集可能データのみの更新
-      let foundIndex = -1;
-      if (
-        workingData.value.some((v, i) => {
-          if (v.id == r.id) foundIndex = i;
-          return v.id == r.id;
-        })
-      ) {
-        const foundWorkingData = workingData.value[foundIndex];
-        // 編集ではない作業中データのみ上書きすることで編集中のデータをリセットさせないようにする
-        if (!foundWorkingData.editing) {
-          foundWorkingData.editableData = editableData;
-        }
-      }
-      // 初取得した登録済みデータなら作業中データに新規登録
-      else {
-        workingData.value.push({
-          id: r.id,
-          api_token: r.api_token,
-          editableData: editableData,
-          editing: false,
-        });
-      }
+      return {
+        id: r.id,
+        api_token: r.api_token,
+        editableData: editableData,
+        editing: false,
+      };
     });
+
+    // 編集中の作業中データを覚えておく
+    const edittingWorkingData: WorkingData[] = workingData.value.filter((w) => w.editing);
+
+    // 未編集データと編集中データを考慮して作業中データの新規構築
+    if (noEdittingWorkingData.length > 0) {
+      if (edittingWorkingData.length > 0) {
+        // 未編集データも編集中のデータもある場合
+        // 編集中データと未編集データを合わせて作業中データとする
+        workingData.value = noEdittingWorkingData.map((n) => {
+          const find = edittingWorkingData.find((e) => e.id == n.id);
+          return find ? find : n;
+        });
+      } else {
+        // 編集中データがない場合は未編集データすべてを作業中データとする
+        workingData.value = noEdittingWorkingData;
+      }
+    } else {
+      // 未編集データも編集中のデータもない場合は作業中データは空にしておく
+      workingData.value = [];
+    }
   } catch (error) {
     // エラー情報はログに流すが処理は止めない
     console.error(error);
