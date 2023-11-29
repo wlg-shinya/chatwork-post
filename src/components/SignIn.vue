@@ -100,8 +100,9 @@ inputData.value.autoSignIn ? signin() : signout();
         <label class="form-check-label" for="autoSignIn">次回から自動サインイン</label>
       </div>
     </div>
-    <div class="align-self-center">
-      <h2>{{ displaySignInInfo }}</h2>
+    <div v-if="displaySignInInfo">
+      <hr />
+      <h2 class="text-center">{{ displaySignInInfo }}</h2>
     </div>
   </div>
 </template>
