@@ -261,7 +261,7 @@ function cancelEdit(data: WorkingData) {
 
 <template>
   <template v-if="apiToken">
-    <table class="table table-bordered table-hover align-middle text-center">
+    <table class="table table-hover align-middle text-center">
       <thead>
         <tr>
           <th class="col-2">投稿先チャット部屋</th>
