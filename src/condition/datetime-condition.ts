@@ -17,9 +17,14 @@ export class DateTimeCondition implements Condition {
   check(): boolean {
     // 完了済みなら以後チェックは通さない
     if (this.completed) return false;
-    // 現在時間が目標時間を越えたらチェックを通す
     const today = new Date();
-    return today.getTime() > this.goalTime();
+    const excessTime = today.getTime() - this.goalTime();
+    // 超過時間が1時間(3600000ミリ秒)を越えていたら登録情報が古すぎるのでチェックは通さない
+    if (excessTime > 3600000) {
+      return false;
+    }
+    // これまでのチェックを通ったうえで現在時間が目標時間を少しでも越えたらチェックを通す
+    return excessTime > 0;
   }
   update(): void {
     if (this.repeat) {
@@ -68,7 +73,7 @@ export class DateTimeCondition implements Condition {
     });
   }
 
-  private completed = true; // TEST:
+  private completed = false;
   private goalTime(): number {
     return this.startTime() + this.hoursMinutesTime();
   }
