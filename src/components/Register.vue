@@ -284,7 +284,7 @@ function notifyWarning(delegate: Function) {
         <tr>
           <th class="col-2">投稿先チャット部屋</th>
           <th class="col-auto">投稿予定文</th>
-          <th class="col-1">投稿者にとっても未読にするか</th>
+          <!-- <th class="col-1">投稿者にとっても未読にするか</th> -->
           <th class="col-3">投稿する条件</th>
           <th class="col-2" colspan="2"></th>
         </tr>
@@ -302,11 +302,11 @@ function notifyWarning(delegate: Function) {
             />
             <textarea v-model="newInputData.body" class="input-body form-control"></textarea>
           </td>
-          <td>
+          <!-- <td>
             <div class="form-switch">
               <input type="checkbox" v-model="newInputData.selfUnread" class="form-check-input" />
             </div>
-          </td>
+          </td> -->
           <td>
             <ConditionComponent
               :condition="newInputData.postCondition.class"
@@ -327,11 +327,11 @@ function notifyWarning(delegate: Function) {
               />
               <textarea v-model="d.editableData.body" class="input-body form-control"></textarea>
             </td>
-            <td>
+            <!-- <td>
               <div class="form-switch">
                 <input type="checkbox" v-model="d.editableData.selfUnread" class="form-check-input" />
               </div>
-            </td>
+            </td> -->
             <td>
               <ConditionComponent
                 :condition="d.editableData.postCondition.class"
@@ -347,7 +347,7 @@ function notifyWarning(delegate: Function) {
             <td>
               <pre class="text-start">{{ d.editableData.body }}</pre>
             </td>
-            <td>{{ d.editableData.selfUnread ? "はい" : "いいえ" }}</td>
+            <!-- <td>{{ d.editableData.selfUnread ? "はい" : "いいえ" }}</td> -->
             <td>
               <ConditionComponent :condition="d.editableData.postCondition.class" :editting="d.editing" />
             </td>
