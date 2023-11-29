@@ -320,6 +320,11 @@ function notifyWarning(delegate: Function) {
           <template v-if="d.editing">
             <td><input v-model="d.editableData.roomInfo" placeholder="IDかURLを入力してください" class="input-room-info form-control" /></td>
             <td>
+              <ToRoomMemberSelector
+                :apiToken="apiToken"
+                :roomId="getRoomId(d.editableData.roomInfo)"
+                @onDecideToRoomMember="d.editableData.body += $event"
+              />
               <textarea v-model="d.editableData.body" class="input-body form-control"></textarea>
             </td>
             <td>
