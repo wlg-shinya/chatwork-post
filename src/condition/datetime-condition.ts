@@ -28,10 +28,11 @@ export class DateTimeCondition implements Condition {
   }
   update(): void {
     if (this.repeat) {
-      // 指定した繰り返し日数だけ開始日をずらして
+      // 繰り返す場合、指定した繰り返し日数だけ開始日をずらして更新する
       const newStartDate = new Date(this.startTime() + this.repeatIntervalTime());
       this.startDateString = newStartDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
     } else {
+      // 繰り返さない場合、条件達成済みとする
       this.completed = true;
     }
   }
