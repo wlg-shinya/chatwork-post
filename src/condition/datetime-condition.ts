@@ -68,7 +68,7 @@ export class DateTimeCondition implements Condition {
     });
   }
 
-  private completed = false;
+  private completed = true; // TEST:
   private goalTime(): number {
     return this.startTime() + this.hoursMinutesTime();
   }

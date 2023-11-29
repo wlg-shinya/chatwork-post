@@ -27,8 +27,8 @@ interface WorkingData {
 }
 
 const newInputData = ref<InputData>({
-  roomInfo: "https://www.chatwork.com/#!rid335028121", // test data
-  body: import.meta.env.VITE_APP_TITLE, // test data
+  roomInfo: "https://www.chatwork.com/#!rid335028121", // TEST:
+  body: import.meta.env.VITE_APP_TITLE, // TEST:
   selfUnread: false,
   postCondition: {
     name: "",
