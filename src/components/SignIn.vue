@@ -107,15 +107,8 @@ function signout() {
 
 function notifyError() {
   const element = document.getElementById("toastError");
-
-  // 要素が取得できなければ何もしない
-  if (!element) {
-    return;
-  }
-
-  // トースト表示
-  const toast = Toast.getOrCreateInstance(element);
-  toast.show();
+  if (!element) return; // 要素が取得できなければ何もしない
+  Toast.getOrCreateInstance(element).show();
 }
 
 // ページ表示や更新のとき、自動サインイン有効ならサインインを試みる。そうでなければサインアウト
