@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect } from "vue";
 import axios from "axios";
+import { Toast } from "bootstrap";
 import { SignIn as LocalStorage } from "../local-storage";
 
 const emit = defineEmits<{
@@ -63,7 +64,8 @@ function signin() {
     // エラーが発生したらサインアウト
     signout();
 
-    // TODO:通知
+    // 通知
+    notifyError();
   }
 }
 
@@ -74,6 +76,19 @@ function signout() {
   emit("onUpdateApiToken", "");
   // 入力情報はセーブ許可してたらローカルストレージに保存されているデータで復元。そうでなければデフォルトでリセット
   inputData.value = inputData.value.isSavedApiToken ? LocalStorage.fetch() : LocalStorage.defaultData;
+}
+
+function notifyError() {
+  const element = document.getElementById("toastError");
+
+  // 要素が取得できなければ何もしない
+  if (!element) {
+    return;
+  }
+
+  // トースト表示
+  const toast = Toast.getOrCreateInstance(element);
+  toast.show();
 }
 
 // ページ表示や更新のとき、自動サインイン有効ならサインインを試みる。そうでなければサインアウト
@@ -103,6 +118,15 @@ inputData.value.autoSignIn ? signin() : signout();
     <div v-if="displaySignInInfo">
       <hr />
       <h2 class="text-center">{{ displaySignInInfo }}</h2>
+    </div>
+  </div>
+  <div class="position-fixed top-0 start-50 translate-middle-x">
+    <div id="toastError" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <span class="me-auto fw-bold">エラー</span>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">入力された ChatworkAPI トークンではサインインできませんでした</div>
     </div>
   </div>
 </template>
