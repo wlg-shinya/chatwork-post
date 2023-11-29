@@ -12,11 +12,14 @@ export default ({ mode }) => {
 
   return defineConfig({
     plugins: [vue(), htmlPlugin()],
-    esbuild: {
-      keepNames: true,
+    server: {
+      port: Number(env.VITE_FRONTEND_PORT),
     },
     define: {
       __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    },
+    esbuild: {
+      keepNames: true,
     },
   });
 };
