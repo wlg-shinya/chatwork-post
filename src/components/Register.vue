@@ -352,7 +352,7 @@ function notifyWarning(delegate: Function) {
       </div>
       <div class="toast-body">この操作は取り消せません。本当に削除しますか？</div>
       <div class="d-flex justify-content-center">
-        <button id="delete" class="btn btn-danger">削除</button>
+        <button id="delete" class="btn btn-danger m-3">削除</button>
       </div>
     </div>
   </div>
