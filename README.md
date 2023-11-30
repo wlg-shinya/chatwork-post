@@ -1,4 +1,4 @@
-# chatnotice
+# chatpost
 
 ## Project setup
 
@@ -10,8 +10,8 @@ npm install
 
 ```
 $ psql -d postgres -U [YourUsername]
-# CREATE DATABASE chatnotice;
-# \connect chatnotice
+# CREATE DATABASE chatpost;
+# \connect chatpost
 # CREATE TABLE register (id serial, room_id integer, body text, self_unread boolean);
 ```
 
