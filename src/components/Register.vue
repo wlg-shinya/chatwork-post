@@ -28,7 +28,7 @@ interface WorkingData {
 }
 
 const newInputData = ref<InputData>({
-  roomInfo: "https://www.chatwork.com/#!rid335028121", // TEST:
+  roomInfo: "",
   body: "",
   selfUnread: false,
   postCondition: {
