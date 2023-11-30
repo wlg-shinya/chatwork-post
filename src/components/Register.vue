@@ -3,7 +3,7 @@ import { ref, computed, watch, watchEffect } from "vue";
 import axios from "axios";
 import { Toast } from "bootstrap";
 import { RegisteredData, RegisteredDataUserInput } from "../types";
-import { Condition, concreteCondition, restoreCondition } from "../condition";
+import { Condition, concreteCondition, createCondition, restoreCondition } from "../condition";
 import ConditionComponent from "./Condition.vue";
 import ToRoomMemberSelector from "./ToRoomMemberSelector.vue";
 
@@ -17,7 +17,7 @@ interface InputData {
   selfUnread: boolean;
   postCondition: {
     name: string;
-    class: Condition | null;
+    class: Condition;
   };
 }
 interface WorkingData {
@@ -33,7 +33,7 @@ const newInputData = ref<InputData>({
   selfUnread: false,
   postCondition: {
     name: "",
-    class: null,
+    class: createCondition("DateTimeCondition"),
   },
 });
 const workingData = ref<WorkingData[]>([]);

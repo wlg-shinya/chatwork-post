@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
-import { Condition, concreteCondition, createCondition, DateTimeCondition } from "../condition";
+import { Condition, concreteCondition, DateTimeCondition } from "../condition";
 import DateTimeConditionComponent from "./DateTimeCondition.vue";
 
 const props = defineProps<{
-  condition: Condition | null;
+  condition: Condition;
   editting: boolean;
 }>();
 
@@ -14,12 +14,11 @@ const emit = defineEmits<{
 }>();
 
 const selectCondition = ref({
-  name: props.condition ? props.condition.name : DateTimeCondition.name,
+  name: props.condition.name,
   class: props.condition,
 });
 
 watchEffect(() => {
-  selectCondition.value.class = createCondition(selectCondition.value.name);
   emit("onSelectedCondition", selectCondition.value.class);
 });
 
@@ -40,7 +39,7 @@ function onUpdateCondition(data: string) {
   <template v-if="condition == null" />
   <DateTimeConditionComponent
     v-else-if="condition.name == DateTimeCondition.name"
-    :condition="concreteCondition(condition)"
+    :condition="concreteCondition(selectCondition.class)"
     :editting="editting"
     @onUpdateCondition="onUpdateCondition"
   />
