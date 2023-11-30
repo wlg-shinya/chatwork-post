@@ -1,17 +1,30 @@
 services:
-  frontend:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  backend:
     image: chatpost
     build:
       context: .
       dockerfile: Dockerfile
       target: prod
     ports:
+      - "3200:3200"
+    command: node ./dist-ssr/index.js
+    depends_on:
+      - db
+  frontend:
+    image: chatpost
+    ports:
       - "5200:5200"
     command: serve -s ./dist -p 5200
     depends_on:
       - backend
-  backend:
-    image: chatpost
-    ports:
-      - "3200:3200"
-    command: node ./dist-ssr/index.js
+      - db
