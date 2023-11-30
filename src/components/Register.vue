@@ -106,17 +106,12 @@ async function updateWorkingData() {
 }
 
 function getRoomId(roomInfo: string): number {
-  if (typeof roomInfo === "number") {
-    // 数値の場合はそのまま扱う
-    return roomInfo;
-  } else if (roomInfo.startsWith("https://www.chatwork.com/#!rid")) {
+  if (roomInfo.startsWith("https://www.chatwork.com/#!rid")) {
     // チャット部屋のURLを指定していた場合はID部分を抽出
     return Number(roomInfo.replace(/.*rid([0-9]+)$/, "$1"));
-  } else if (!roomInfo.match(/[^0-9]+/)) {
-    // 部屋IDを直接文字列指定していたらそのまま扱う
-    return Number(roomInfo);
   } else {
-    throw new Error(`roomInfo=${roomInfo}`);
+    const num = Number(roomInfo);
+    return num ? num : 0;
   }
 }
 
@@ -361,7 +356,12 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
             </td>
             <!-- <td>{{ d.editableData.selfUnread ? "はい" : "いいえ" }}</td> -->
             <td>
-              <ConditionComponent :condition="d.editableData.postCondition.class" :editting="d.editing" />
+              <ConditionComponent
+                :condition="d.editableData.postCondition.class"
+                :editting="d.editing"
+                @onSelectedCondition="d.editableData.postCondition.class = concreteCondition($event)"
+                @onUpdateCondition="d.editableData.postCondition.class?.setData($event)"
+              />
             </td>
             <td><button @click.stop="startEdit(d)" class="btn btn-primary container-fluid">編集</button></td>
             <td><button @click.stop="notifyWarning(() => deleteRegisteredData(d.id))" class="btn btn-danger container-fluid">削除</button></td>

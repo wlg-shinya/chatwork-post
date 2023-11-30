@@ -33,6 +33,10 @@ function onClick() {
 }
 
 function updateMembers() {
+  // 正しい部屋IDでないなら何もしない
+  if (!props.roomId) return;
+
+  // 指定部屋のメンバー全員を取得する
   axios
     .get("/api/chatwork_room_members", {
       params: {
