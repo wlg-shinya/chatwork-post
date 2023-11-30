@@ -63,6 +63,6 @@ updateMembers();
     <select v-model="selectMember" class="form-select" id="selectMember">
       <option v-for="m in members" :key="m.id" :value="m">{{ m.name }}</option>
     </select>
-    <button @click="onClick" type="button" class="btn btn-outline-secondary">追加</button>
+    <button @click="onClick" type="button" class="btn btn-outline-secondary">挿入</button>
   </div>
 </template>

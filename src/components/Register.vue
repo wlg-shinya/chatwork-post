@@ -275,6 +275,16 @@ function notifyWarning(delegate: Function) {
   // トースト表示
   toast.show();
 }
+
+function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
+  // 入力補助とセットのテキストエリアのカーソル位置にタグを挿入
+  const textarea = document.getElementById(textareId) as HTMLInputElement;
+  if (!textarea) throw new Error(`textarea = ${textarea}`);
+  const selectionStart = textarea.selectionStart ?? 0;
+  const valueBefore = textarea.value.substring(0, selectionStart);
+  const valueAfter = textarea.value.substring(selectionStart, textarea.value.length);
+  data.body = valueBefore + tag + valueAfter;
+}
 </script>
 
 <template>
@@ -298,9 +308,9 @@ function notifyWarning(delegate: Function) {
             <ToRoomMemberSelector
               :apiToken="apiToken"
               :roomId="getRoomId(newInputData.roomInfo)"
-              @onDecideToRoomMember="newInputData.body += $event"
+              @onDecideToRoomMember="onDecideToRoomMember('inputBodyNew', $event, newInputData)"
             />
-            <textarea v-model="newInputData.body" class="input-body form-control"></textarea>
+            <textarea v-model="newInputData.body" class="input-body form-control" id="inputBodyNew"></textarea>
           </td>
           <!-- <td>
             <div class="form-switch">
@@ -324,9 +334,9 @@ function notifyWarning(delegate: Function) {
               <ToRoomMemberSelector
                 :apiToken="apiToken"
                 :roomId="getRoomId(d.editableData.roomInfo)"
-                @onDecideToRoomMember="d.editableData.body += $event"
+                @onDecideToRoomMember="onDecideToRoomMember(`inputBody${d.id}`, $event, d.editableData)"
               />
-              <textarea v-model="d.editableData.body" class="input-body form-control"></textarea>
+              <textarea v-model="d.editableData.body" class="input-body form-control" :id="`inputBody${d.id}`"></textarea>
             </td>
             <!-- <td>
               <div class="form-switch">
