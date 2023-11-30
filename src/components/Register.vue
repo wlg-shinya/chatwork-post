@@ -315,7 +315,7 @@ function notifyWarning(delegate: Function) {
               @onUpdateCondition="newInputData.postCondition.class?.setData($event)"
             />
           </td>
-          <td colspan="2"><button @click="register" class="btn btn-primary">新規登録</button></td>
+          <td colspan="2"><button @click="register" class="btn btn-primary container-fluid">新規登録</button></td>
         </tr>
         <tr v-for="d in sortedWorkingData" :key="d.id">
           <template v-if="d.editing">
@@ -341,8 +341,8 @@ function notifyWarning(delegate: Function) {
                 @onUpdateCondition="d.editableData.postCondition.class?.setData($event)"
               />
             </td>
-            <td><button @click="updateRegisteredData(d)" class="btn btn-primary">更新</button></td>
-            <td><button @click="cancelEdit(d)" class="btn btn-outline-primary">キャンセル</button></td>
+            <td><button @click="updateRegisteredData(d)" class="btn btn-primary container-fluid">更新</button></td>
+            <td><button @click="cancelEdit(d)" class="btn btn-outline-primary container-fluid">キャンセル</button></td>
           </template>
           <template v-else>
             <td>{{ roomNameTable[d.editableData.roomInfo] }}</td>
@@ -353,8 +353,8 @@ function notifyWarning(delegate: Function) {
             <td>
               <ConditionComponent :condition="d.editableData.postCondition.class" :editting="d.editing" />
             </td>
-            <td><button @click="startEdit(d)" class="btn btn-primary">編集</button></td>
-            <td><button @click="notifyWarning(() => deleteRegisteredData(d.id))" class="btn btn-danger">削除</button></td>
+            <td><button @click="startEdit(d)" class="btn btn-primary container-fluid">編集</button></td>
+            <td><button @click="notifyWarning(() => deleteRegisteredData(d.id))" class="btn btn-danger container-fluid">削除</button></td>
           </template>
         </tr>
       </tbody>
