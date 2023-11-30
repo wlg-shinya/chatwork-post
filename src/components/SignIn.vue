@@ -118,11 +118,11 @@ inputData.value.autoSignIn ? signin() : signout();
 <template>
   <div class="d-flex flex-column">
     <div class="d-flex flex-column align-items-center">
-      <label for="api-token" class="form-label">投稿したいアカウントの ChatworkAPI トークンを入力してください</label>
-      <input id="api-token" v-model="inputData.apiToken" class="form-control" style="width: 350px" aria-describedby="chatworkapi-help" />
-      <div id="chatworkapi-help" class="form-text">
+      <label for="api-token" class="form-label"
+        >投稿したいアカウントの ChatworkAPI トークンを入力してください
         <a href="https://developer.chatwork.com/docs" class="link-primary">ChatworkAPI トークンとは</a>
-      </div>
+      </label>
+      <input id="api-token" v-model="inputData.apiToken" class="form-control" style="width: 350px" aria-describedby="chatworkapi-help" />
       <button id="api-token" @click="signin()" class="btn btn-primary btn-lg">サインイン</button>
     </div>
     <div class="align-self-center">
