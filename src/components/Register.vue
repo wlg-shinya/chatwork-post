@@ -312,6 +312,7 @@ function notifyWarning(delegate: Function) {
               :condition="newInputData.postCondition.class"
               :editting="true"
               @onSelectedCondition="newInputData.postCondition.class = concreteCondition($event)"
+              @onUpdateCondition="newInputData.postCondition.class?.setData($event)"
             />
           </td>
           <td colspan="2"><button @click="register" class="btn btn-primary">新規登録</button></td>
@@ -337,6 +338,7 @@ function notifyWarning(delegate: Function) {
                 :condition="d.editableData.postCondition.class"
                 :editting="d.editing"
                 @onSelectedCondition="d.editableData.postCondition.class = concreteCondition($event)"
+                @onUpdateCondition="d.editableData.postCondition.class?.setData($event)"
               />
             </td>
             <td><button @click="updateRegisteredData(d)" class="btn btn-primary">更新</button></td>

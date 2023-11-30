@@ -12,6 +12,7 @@ export class DateTimeCondition implements Condition {
   get repeatIntervalDay() {
     return this._repeatIntervalDay;
   }
+  private completed = false;
 
   static selectLabel = "指定の日付と時刻に投稿";
   check(): boolean {
@@ -61,7 +62,6 @@ export class DateTimeCondition implements Condition {
     this.startDateString = today.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
     this.hoursMinutesString = today.toLocaleTimeString("ja-JP", { timeZone: "Asia/Tokyo", hour: "2-digit", minute: "2-digit" });
   }
-
   goalDateString(): string {
     const goal = new Date(this.goalTime());
     return goal.toLocaleString("ja-JP", {
@@ -73,8 +73,6 @@ export class DateTimeCondition implements Condition {
       minute: "2-digit",
     });
   }
-
-  private completed = false;
   private goalTime(): number {
     return this.startTime() + this.hoursMinutesTime();
   }

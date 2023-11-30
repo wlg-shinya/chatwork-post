@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   onSelectedCondition: [selected: Condition];
+  onUpdateCondition: [data: string];
 }>();
 
 const selectCondition = ref({
@@ -21,6 +22,10 @@ watchEffect(() => {
   selectCondition.value.class = createCondition(selectCondition.value.name);
   emit("onSelectedCondition", selectCondition.value.class);
 });
+
+function onUpdateCondition(data: string) {
+  emit("onUpdateCondition", data);
+}
 </script>
 
 <template>
@@ -33,5 +38,10 @@ watchEffect(() => {
   </template> 
   -->
   <template v-if="condition == null" />
-  <DateTimeConditionComponent v-else-if="condition.name == DateTimeCondition.name" :condition="concreteCondition(condition)" :editting="editting" />
+  <DateTimeConditionComponent
+    v-else-if="condition.name == DateTimeCondition.name"
+    :condition="concreteCondition(condition)"
+    :editting="editting"
+    @onUpdateCondition="onUpdateCondition"
+  />
 </template>
