@@ -10,8 +10,6 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-    networks:
-      - db-backend
   backend:
     image: chatpost
     build:
@@ -25,8 +23,6 @@ services:
       - VITE_DB_URL=postgres://postgres:postgres@chatpost-db:5432/chatpost
     depends_on:
       - db
-    networks:
-      - db-backend
   frontend:
     image: chatpost
     ports:
@@ -35,6 +31,3 @@ services:
     depends_on:
       - backend
       - db
-networks:
-  db-backend:
-    driver: bridge
