@@ -2,13 +2,10 @@ import express from "express";
 import axios from "axios";
 import cors from "cors";
 import pg from "./pg-client";
+import "dotenv";
 import RoutingList from "./express-routing-list";
 import { RegisteredData } from "../src/types";
 import { concreteCondition, restoreCondition } from "../src/condition";
-
-// 環境変数の読み込み
-import dotenv from "dotenv";
-dotenv.config({ path: ".env" });
 
 // 指定リクエストデータの指定要素名から値を得る
 // reqDataにはreq.queryかreq.bodyを指定
