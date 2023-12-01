@@ -12,6 +12,7 @@ services:
       - POSTGRES_PASSWORD=postgres
   backend:
     image: chatpost
+    hostname: chatpost-backend
     build:
       context: .
       dockerfile: Dockerfile
@@ -20,6 +21,7 @@ services:
       - "3200:3200"
     command: node ./dist-ssr/index.js
     environment:
+      - VITE_BACKEND_URL=http://chatpost-backend
       - VITE_DB_URL=postgres://postgres:postgres@chatpost-db:5432/chatpost
     depends_on:
       - db
@@ -28,6 +30,8 @@ services:
     ports:
       - "5200:5200"
     command: serve -s ./dist -p 5200
+    environment:
+      - VITE_BACKEND_URL=http://chatpost-backend
     depends_on:
       - backend
       - db
