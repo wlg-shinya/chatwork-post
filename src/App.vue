@@ -4,6 +4,7 @@ import SignIn from "./components/SignIn.vue";
 import Register from "./components/Register.vue";
 
 const APP_TITLE = `${import.meta.env.VITE_APP_TITLE} version ${__APP_VERSION__}`;
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 const apiToken = ref("");
 </script>
@@ -18,6 +19,13 @@ const apiToken = ref("");
       <Suspense>
         <Register :apiToken="apiToken" />
       </Suspense>
+    </div>
+    <div class="card-footer">
+      <ul>
+        <li>〇〇って条件で投稿したい！</li>
+        <li>〇〇な機能に対応してほしい！</li>
+      </ul>
+      ご要望は Chatwork 上で {{ ADMIN_EMAIL }} にコンタクトください
     </div>
   </div>
 </template>

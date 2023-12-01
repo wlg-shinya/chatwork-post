@@ -4,7 +4,7 @@ services:
     hostname: chatpost-db
     restart: always
     ports:
-      - "7200:5432" # 単体起動時はホストPCから7200でアクセス可
+      - "8102:5432" # 単体起動時はホストPCから 8102 でアクセス可
     volumes:
       - ./initdb.d:/docker-entrypoint-initdb.d
       - ./pgdata:/var/lib/postgresql/data
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
       target: prod
     ports:
-      - "3200:3200"
+      - "8101:8101"
     command: node ./dist-ssr/index.js
     environment:
       - VITE_BACKEND_URL=http://chatpost-backend
@@ -30,8 +30,8 @@ services:
   frontend:
     image: chatpost
     ports:
-      - "5200:5200"
-    command: sh -c "cd ./dist && http-server -p 5200"
+      - "8100:8100"
+    command: sh -c "cd ./dist && http-server -p 8100"
     environment:
       - VITE_BACKEND_URL=http://chatpost-backend
     depends_on:

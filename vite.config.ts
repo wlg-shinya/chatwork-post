@@ -13,7 +13,7 @@ export default ({ mode }) => {
   return defineConfig({
     plugins: [vue(), htmlPlugin()],
     server: {
-      port: Number(env.VITE_FRONTEND_PORT),
+      port: Number(env.VITE_BASE_PORT),
     },
     define: {
       __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
