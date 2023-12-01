@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:16-alpine
     hostname: chatpost-db
+    restart: always
     ports:
       - "7200:5432" # 単体起動時はホストPCから7200でアクセス可
     volumes:
@@ -13,6 +14,7 @@ services:
   backend:
     image: chatpost
     hostname: chatpost-backend
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile
@@ -29,7 +31,7 @@ services:
     image: chatpost
     ports:
       - "5200:5200"
-    command: serve -s ./dist -p 5200
+    command: serve ./dist -l 5200
     environment:
       - VITE_BACKEND_URL=http://chatpost-backend
     depends_on:
