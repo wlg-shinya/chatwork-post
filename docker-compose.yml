@@ -3,7 +3,7 @@ services:
     image: postgres:16-alpine
     hostname: chatpost-db
     ports:
-      - "7200:5432"
+      - "7200:5432" # 単体起動時はホストPCから7200でアクセス可
     volumes:
       - ./initdb.d:/docker-entrypoint-initdb.d
       - ./pgdata:/var/lib/postgresql/data
