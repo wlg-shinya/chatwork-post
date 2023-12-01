@@ -108,6 +108,7 @@ async function pollingChatworkPostMessage() {
         const condition = concreteCondition(restoreCondition(data.post_condition));
         if (condition.check()) {
           // 条件を満たしたので実際にチャットへ投稿
+          // TODO: このサービスから自動投稿されたことを示す文章を付与する
           chatworkPostMessage(data.api_token, data.room_id, data.body, data.self_unread);
           condition.update();
           // 条件更新後の情報をDBに反映
