@@ -27,5 +27,5 @@ $ npm run build && npm run serve
 ## Deploy
 
 ```
-$ docker-compose build && docker-compose up
+$ npm run clean && docker-compose build && docker-compose up
 ```
