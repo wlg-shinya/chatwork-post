@@ -20,12 +20,13 @@ const apiToken = ref("");
         <Register :apiToken="apiToken" />
       </Suspense>
     </div>
+    <!-- TODO: センタリング -->
     <div class="card-footer">
       <ul>
         <li>〇〇って条件で投稿したい！</li>
         <li>〇〇な機能に対応してほしい！</li>
       </ul>
-      ご要望は Chatwork 上で {{ ADMIN_EMAIL }} にコンタクトください
+      <span>ご要望は Chatwork 上で {{ ADMIN_EMAIL }} にコンタクトください</span>
     </div>
   </div>
 </template>
