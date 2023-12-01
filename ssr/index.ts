@@ -133,7 +133,7 @@ async function pollingChatworkPostMessage() {
 
 function displayInfo() {
   // URL＆ポート番号
-  console.log(`[${date()}] Server URL: ${process.env.VITE_BASE_URL}:${port}`);
+  console.log(`[${date()}] Server URL: ${process.env.VITE_BACKEND_URL}:${port}`);
   // API一覧
   const routingList = RoutingList({ app });
   const routingListKeys = Object.keys(routingList);
