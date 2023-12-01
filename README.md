@@ -6,22 +6,22 @@
 $ npm install
 ```
 
-### DB setup
+### DB startup
 
 ```
 $ docker-compose up db
 ```
 
-### Compiles and hot-reloads for development
+### Build and run for development
 
 ```
 $ npm run dev && npm run serve
 ```
 
-### Compiles and minifies for production
+### Build and run for production
 
 ```
-$ npm run build && npm run serve
+$ npm run build && npm run preview && npm run serve
 ```
 
 ## Deploy
