@@ -352,7 +352,7 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
           <template v-else>
             <td>{{ roomNameTable[d.editableData.roomInfo] }}</td>
             <td>
-              <pre class="text-start">{{ d.editableData.body }}</pre>
+              <pre class="text-start m-0">{{ d.editableData.body }}</pre>
             </td>
             <!-- <td>{{ d.editableData.selfUnread ? "はい" : "いいえ" }}</td> -->
             <td>
