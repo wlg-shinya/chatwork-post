@@ -31,7 +31,7 @@ services:
     image: chatpost
     ports:
       - "5200:5200"
-    command: serve ./dist -l 5200
+    command: sh -c "cd ./dist && http-server -p 5200"
     environment:
       - VITE_BACKEND_URL=http://chatpost-backend
     depends_on:

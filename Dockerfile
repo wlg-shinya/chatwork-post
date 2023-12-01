@@ -11,4 +11,4 @@ WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app /usr/src/app
 ENV NODE_ENV=production
 RUN npm install
-RUN npm install -g serve
+RUN npm install -g http-server
