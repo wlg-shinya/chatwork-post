@@ -40,7 +40,7 @@ function httpErrorHandler(res: any, error: any) {
   }
 }
 
-function pgQuery(text: string): Promise<null> {
+function pgQuery(text: string): Promise<any> {
   console.log(`[${date()}] db=# ${text}`);
   return pg.query(text);
 }

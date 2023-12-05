@@ -18,7 +18,7 @@ const pg = {
       pool = new Pool(config);
     }
 
-    let response = null;
+    let response: any = null;
     await pool
       .connect()
       .then(async (client: any) => {
