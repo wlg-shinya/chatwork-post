@@ -20,7 +20,6 @@ const apiToken = ref("");
         <Register :apiToken="apiToken" />
       </Suspense>
     </div>
-    <!-- TODO: センタリング -->
     <div class="card-footer">
       <ul>
         <li>〇〇って条件で投稿したい！</li>
