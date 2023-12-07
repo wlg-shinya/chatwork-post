@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect } from "vue";
 import axios from "axios";
-import { Toast } from "bootstrap";
+import { Modal } from "bootstrap";
 import { RegisteredData, RegisteredDataUserInput } from "../types";
 import { Condition, concreteCondition, createCondition, restoreCondition } from "../condition";
 import ConditionComponent from "./Condition.vue";
@@ -255,20 +255,18 @@ function cancelEdit(data: WorkingData) {
 }
 
 function notifyWarning(delegate: Function) {
-  const toastEl = document.getElementById("toastWarning");
-  if (!toastEl) return;
-  const toast = Toast.getOrCreateInstance(toastEl);
+  const modal = new Modal("#notifyWarning");
+
+  // 削除ボタンに指定関数を割り当てる
   const buttonEl = document.getElementById("delete");
   if (!buttonEl) return;
-
-  // 指定関数の登録
   buttonEl.addEventListener("click", () => {
     delegate();
-    toast.hide(); // 実行後はトーストを閉じる
+    modal.hide();
   });
 
-  // トースト表示
-  toast.show();
+  // UI表示
+  modal.show();
 }
 
 function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
@@ -364,21 +362,27 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
               />
             </td>
             <td><button @click.stop="startEdit(d)" class="btn btn-primary container-fluid">編集</button></td>
-            <td><button @click.stop="notifyWarning(() => deleteRegisteredData(d.id))" class="btn btn-danger container-fluid">削除</button></td>
+            <td>
+              <button @click.stop="notifyWarning(() => deleteRegisteredData(d.id))" class="btn btn-danger container-fluid">削除</button>
+            </td>
           </template>
         </tr>
       </tbody>
     </table>
   </template>
-  <div class="position-fixed top-50 start-50 translate-middle">
-    <div id="toastWarning" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header">
-        <span class="me-auto fw-bold">注意</span>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body">この操作は取り消せません。本当に削除しますか？</div>
-      <div class="d-flex justify-content-center">
-        <button id="delete" class="btn btn-danger m-3">削除</button>
+  <div class="modal fade" id="notifyWarning" tabindex="-1" aria-labelledby="notifyWarningLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title fw-bold fs-5" id="notifyWarningLabel">注意</span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <span>この操作は取り消せません。本当に削除しますか？</span>
+        </div>
+        <div class="modal-footer d-flex justify-content-center">
+          <button id="delete" class="btn btn-danger">削除</button>
+        </div>
       </div>
     </div>
   </div>
