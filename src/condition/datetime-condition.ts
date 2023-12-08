@@ -82,22 +82,33 @@ export class DateTimeCondition implements Condition {
   private startTime(): number {
     const match = this.startDateString.match(/([0-9]+)-([0-9]+)-([0-9]+)/);
     if (match?.length != 4) throw new Error(`this.startDateString=${this.startDateString}`);
-    const date = new Date(0);
-    date.setFullYear(Number(match[1]), Number(match[2]) - 1, Number(match[3])); // 月はデータが0始まりなので調整する
-    return date.getTime();
+    return Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])); // 月はデータが0始まりなので調整する
   }
   private hoursMinutesTime(): number {
     const match = this.hoursMinutesString.match(/([0-9]+):([0-9]+)/);
     if (match?.length != 3) throw new Error(`this.hoursMinutesString=${this.hoursMinutesString}`);
-    const date = new Date(0);
-    date.setHours(Number(match[1]), Number(match[2]));
-    return date.getTime();
+    return Date.UTC(1970, 0, 1, Number(match[1]), Number(match[2]));
   }
   private repeatIntervalTime(): number {
     return this.repeatIntervalDay * 86400000; // 86400000ミリ秒 = 1日
   }
   private excessTime(): number {
-    const today = new Date();
-    return today.getTime() - this.goalTime();
+    // 今日を得るためのnew Dateだとタイムゾーンがシステムに依存する。なのでAsia/Tokyoになるように加工してからUNIT時間を扱う
+    const todayOutTimezone = new Date();
+    const todayString = todayOutTimezone.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", hour12: false });
+    const match = todayString.match(/([0-9]+)\/([0-9]+)\/([0-9]+) ([0-9]+):([0-9]+):([0-9]+)/);
+    if (match?.length != 7) throw new Error(`todayOnTimezoneString=${todayString}`);
+    const todayTime = Date.UTC(
+      Number(match[1]),
+      Number(match[2]) - 1, // 月はデータが0始まりなので調整する
+      Number(match[3]),
+      Number(match[4]),
+      Number(match[5]),
+      Number(match[6])
+    );
+
+    // 経過時間を算出
+    const excessTime = todayTime - this.goalTime();
+    return excessTime;
   }
 }
