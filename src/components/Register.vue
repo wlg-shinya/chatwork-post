@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, watchEffect } from "vue";
+import { ref, computed, watch } from "vue";
 import axios from "axios";
 import { Modal } from "bootstrap";
 import { RegisteredData, RegisteredDataUserInput } from "../types";
@@ -26,6 +26,11 @@ interface WorkingData {
   editableData: InputData;
   editing: boolean;
 }
+interface RoomData {
+  id: number;
+  name: string;
+  type: string;
+}
 
 const newInputData = ref<InputData>({
   roomInfo: "",
@@ -36,23 +41,63 @@ const newInputData = ref<InputData>({
     class: createCondition("DateTimeCondition"),
   },
 });
-const workingData = ref<WorkingData[]>([]);
-const roomNameTable = ref<Record<string, string>>({});
+const workingDataArray = ref<WorkingData[]>([]);
+const roomDataArray = ref<RoomData[]>([]);
 
-const sortedWorkingData = computed(() => workingData.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
+const sortedWorkingData = computed(() => workingDataArray.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
 
-// APIトークンが更新されたら作業中データも更新
+// APIトークンが更新されたら各種データ更新
 watch(
   () => props.apiToken,
-  () => updateWorkingData()
+  async () => {
+    updateWorkingData();
+    roomDataArray.value = await getRoomList();
+  }
 );
 
-// 部屋情報から部屋名をテーブル化して後から参照できるようにする
-watchEffect(() => {
-  workingData.value.forEach(async (x) => {
-    roomNameTable.value[x.editableData.roomInfo] = await getRoomName(x.editableData.roomInfo);
-  });
-});
+// チャット部屋の情報取得
+async function getRoomList(): Promise<RoomData[]> {
+  return await axios
+    .get("/api/chatwork_rooms", {
+      params: {
+        api_token: props.apiToken,
+      },
+    })
+    .then((response: any) => {
+      const data = JSON.parse(JSON.stringify(response.data));
+      if (!data || data.length == 0) {
+        console.error(`[Error] data=${data}`); // エラー情報はログに流すが処理は止めない
+      } else {
+        return data.map((x: any): RoomData => {
+          return {
+            id: x.room_id,
+            name: x.name,
+            type: x.type,
+          };
+        });
+      }
+    })
+    .catch((error) => {
+      console.error(error); // エラー情報はログに流すが処理は止めない
+      return [];
+    });
+}
+
+function getRoomId(roomInfo: string): number {
+  if (roomInfo.startsWith("https://www.chatwork.com/#!rid")) {
+    // チャット部屋のURLを指定していた場合はID部分を抽出
+    return Number(roomInfo.replace(/.*rid([0-9]+)$/, "$1"));
+  } else {
+    const num = Number(roomInfo);
+    return num ? num : 0;
+  }
+}
+
+function getRoomNameByInfo(roomInfo: string): string {
+  const roomId = getRoomId(roomInfo);
+  const target = roomDataArray.value.find((x) => x.id === roomId);
+  return target ? target.name : "";
+}
 
 // 登録済みデータを作業中データに反映させる
 async function updateWorkingData() {
@@ -79,77 +124,30 @@ async function updateWorkingData() {
     });
 
     // 編集中の作業中データを覚えておく
-    const edittingWorkingData: WorkingData[] = workingData.value.filter((w) => w.editing);
+    const edittingWorkingData: WorkingData[] = workingDataArray.value.filter((w) => w.editing);
 
     // 未編集データと編集中データを考慮して作業中データの新規構築
     if (noEdittingWorkingData.length > 0) {
       if (edittingWorkingData.length > 0) {
         // 未編集データも編集中のデータもある場合
         // 編集中データと未編集データを合わせて作業中データとする
-        workingData.value = noEdittingWorkingData.map((n) => {
+        workingDataArray.value = noEdittingWorkingData.map((n) => {
           const find = edittingWorkingData.find((e) => e.id == n.id);
           return find ? find : n;
         });
       } else {
         // 編集中データがない場合は未編集データすべてを作業中データとする
-        workingData.value = noEdittingWorkingData;
+        workingDataArray.value = noEdittingWorkingData;
       }
     } else {
       // 未編集データも編集中のデータもない場合は作業中データは空にしておく
-      workingData.value = [];
+      workingDataArray.value = [];
     }
   } catch (error) {
     // エラー情報はログに流すが処理は止めない
     console.error(error);
     return;
   }
-}
-
-function getRoomId(roomInfo: string): number {
-  if (roomInfo.startsWith("https://www.chatwork.com/#!rid")) {
-    // チャット部屋のURLを指定していた場合はID部分を抽出
-    return Number(roomInfo.replace(/.*rid([0-9]+)$/, "$1"));
-  } else {
-    const num = Number(roomInfo);
-    return num ? num : 0;
-  }
-}
-
-async function getRoomName(roomInfo: string): Promise<string> {
-  let name = "";
-  try {
-    const roomId = getRoomId(roomInfo);
-    await axios
-      .get("/api/chatwork_room", {
-        params: {
-          api_token: props.apiToken,
-          room_id: roomId,
-        },
-      })
-      .then((response: any) => {
-        const data = JSON.parse(JSON.stringify(response.data));
-        switch (data.type) {
-          case "my":
-            name = "マイチャット";
-            break;
-          case "direct":
-            name = `DM:${data.name}`;
-            break;
-          case "group":
-          default:
-            name = data.name;
-            break;
-        }
-      })
-      .catch((error) => {
-        throw error;
-      });
-  } catch (error) {
-    // エラー情報はログに流すが処理は止めない
-    console.error(error);
-    name = "ERROR";
-  }
-  return name;
 }
 
 function register() {
@@ -348,7 +346,7 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
             <td><button @click.stop="cancelEdit(d)" class="btn btn-outline-primary container-fluid">キャンセル</button></td>
           </template>
           <template v-else>
-            <td>{{ roomNameTable[d.editableData.roomInfo] }}</td>
+            <td>{{ getRoomNameByInfo(d.editableData.roomInfo) }}</td>
             <td>
               <pre class="text-start m-0">{{ d.editableData.body }}</pre>
             </td>

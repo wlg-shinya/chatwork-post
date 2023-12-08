@@ -247,11 +247,10 @@ app.get("/api/chatwork_account", async (req: any, res: any) => {
   }
 });
 
-app.get("/api/chatwork_room", async (req: any, res: any) => {
-  console.log(`[${date()}] GET /api/chatwork_room`);
+app.get("/api/chatwork_rooms", async (req: any, res: any) => {
+  console.log(`[${date()}] GET /api/chatwork_rooms`);
   try {
     const api_token = reqValue({ reqData: req.query, name: "api_token" });
-    const room_id = reqValue({ reqData: req.query, name: "room_id" });
 
     const config = {
       headers: {
@@ -259,8 +258,8 @@ app.get("/api/chatwork_room", async (req: any, res: any) => {
         "x-chatworktoken": api_token,
       },
     };
-    // https://developer.chatwork.com/reference/get-rooms-room_id
-    const url = `https://api.chatwork.com/v2/rooms/${room_id}`;
+    // https://developer.chatwork.com/reference/get-rooms
+    const url = `https://api.chatwork.com/v2/rooms`;
     console.log(`[${date()}] GET ${url}`);
     axios
       .get(url, config)
