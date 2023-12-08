@@ -34,7 +34,7 @@ watch(
             <input type="time" v-model="inputCondition.hoursMinutesString" class="form-control" />
           </div>
           <div class="col-3 p-0 align-self-center">
-            <span>に投稿する</span>
+            <span>に投稿</span>
           </div>
         </div>
       </div>
@@ -42,7 +42,7 @@ watch(
         <div class="row align-items-center">
           <div class="col-3 form-check form-switch">
             <input type="checkbox" v-model="inputCondition.repeat" class="form-check-input" id="repeat" />
-            <label class="form-check-label m-0" for="repeat">繰り返す</label>
+            <label class="form-check-label m-0" for="repeat">リピート</label>
           </div>
           <template v-if="inputCondition.repeat">
             <div class="col-3 p-0">
@@ -57,12 +57,12 @@ watch(
     </div>
   </template>
   <template v-else>
-    <template v-if="props.condition.tooOld()"> {{ inputCondition.goalDateString() }}は経過しすぎているので投稿しない</template>
+    <template v-if="props.condition.tooOld()"> {{ inputCondition.goalDateString() }}は経過しすぎているので投稿しません</template>
     <template v-else>
       <template v-if="inputCondition.repeat">
-        {{ inputCondition.repeatIntervalDay }}日ごとに繰り返す。次は{{ inputCondition.goalDateString() }}に投稿する
+        {{ inputCondition.repeatIntervalDay }}日ごとにリピート。次は{{ inputCondition.goalDateString() }}に投稿
       </template>
-      <template v-else> {{ inputCondition.goalDateString() }}に投稿{{ props.condition.completed ? "した" : "する" }} </template>
+      <template v-else> {{ inputCondition.goalDateString() }}に投稿{{ props.condition.completed ? "しました" : "" }} </template>
     </template>
   </template>
 </template>
