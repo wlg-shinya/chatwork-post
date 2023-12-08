@@ -2,17 +2,18 @@
 import { ref, computed, watch } from "vue";
 import axios from "axios";
 import { Modal } from "bootstrap";
-import { RegisteredData, RegisteredDataUserInput } from "../types";
+import { RegisteredData, RegisteredDataUserInput, RoomData } from "../types";
 import { Condition, concreteCondition, createCondition, restoreCondition } from "../condition";
 import ConditionComponent from "./Condition.vue";
 import ToRoomMemberSelector from "./ToRoomMemberSelector.vue";
+import RoomSelector from "./RoomSelector.vue";
 
 const props = defineProps<{
   apiToken: string;
 }>();
 
 interface InputData {
-  roomInfo: string;
+  roomId: number;
   body: string;
   selfUnread: boolean;
   postCondition: {
@@ -26,14 +27,9 @@ interface WorkingData {
   editableData: InputData;
   editing: boolean;
 }
-interface RoomData {
-  id: number;
-  name: string;
-  type: string;
-}
 
 const newInputData = ref<InputData>({
-  roomInfo: "",
+  roomId: 0,
   body: "",
   selfUnread: false,
   postCondition: {
@@ -42,21 +38,21 @@ const newInputData = ref<InputData>({
   },
 });
 const workingDataArray = ref<WorkingData[]>([]);
-const roomDataArray = ref<RoomData[]>([]);
+const roomDataArray = ref<readonly RoomData[]>([]);
 
 const sortedWorkingData = computed(() => workingDataArray.value.sort((a: any, b: any) => (a.id < b.id ? 1 : -1)));
 
-// APIトークンが更新されたら各種データ更新
+// APIトークンが更新されたら各種データを更新
 watch(
   () => props.apiToken,
   async () => {
     updateWorkingData();
-    roomDataArray.value = await getRoomList();
+    roomDataArray.value = await getRoomDataArray();
   }
 );
 
-// チャット部屋の情報取得
-async function getRoomList(): Promise<RoomData[]> {
+// 全チャット部屋の情報取得
+async function getRoomDataArray(): Promise<readonly RoomData[]> {
   return await axios
     .get("/api/chatwork_rooms", {
       params: {
@@ -83,18 +79,7 @@ async function getRoomList(): Promise<RoomData[]> {
     });
 }
 
-function getRoomId(roomInfo: string): number {
-  if (roomInfo.startsWith("https://www.chatwork.com/#!rid")) {
-    // チャット部屋のURLを指定していた場合はID部分を抽出
-    return Number(roomInfo.replace(/.*rid([0-9]+)$/, "$1"));
-  } else {
-    const num = Number(roomInfo);
-    return num ? num : 0;
-  }
-}
-
-function getRoomNameByInfo(roomInfo: string): string {
-  const roomId = getRoomId(roomInfo);
+function getRoomNameById(roomId: number): string {
   const target = roomDataArray.value.find((x) => x.id === roomId);
   return target ? target.name : "";
 }
@@ -107,7 +92,7 @@ async function updateWorkingData() {
     const noEdittingWorkingData = registeredData.map((r): WorkingData => {
       const condition = restoreCondition(r.post_condition);
       const editableData: InputData = {
-        roomInfo: r.room_id.toString(),
+        roomId: r.room_id,
         body: r.body,
         selfUnread: r.self_unread,
         postCondition: {
@@ -156,7 +141,7 @@ function register() {
   }
   const data: RegisteredDataUserInput = {
     api_token: props.apiToken,
-    room_id: getRoomId(newInputData.value.roomInfo),
+    room_id: newInputData.value.roomId,
     body: newInputData.value.body,
     self_unread: newInputData.value.selfUnread,
     post_condition: newInputData.value.postCondition.class.getData(),
@@ -210,7 +195,7 @@ function updateRegisteredData(data: WorkingData) {
   const putData: RegisteredData = {
     id: data.id,
     api_token: data.api_token,
-    room_id: getRoomId(data.editableData.roomInfo),
+    room_id: data.editableData.roomId,
     body: data.editableData.body,
     self_unread: data.editableData.selfUnread,
     post_condition: data.editableData.postCondition.class.getData(),
@@ -293,12 +278,17 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
       <tbody>
         <tr>
           <td>
-            <input v-model="newInputData.roomInfo" placeholder="IDかURLを入力してください" class="input-room-info form-control" />
+            <RoomSelector
+              :apiToken="apiToken"
+              :roomDataArray="roomDataArray"
+              :currentRoomId="newInputData.roomId"
+              @onSelectRoom="newInputData.roomId = $event"
+            />
           </td>
           <td>
             <ToRoomMemberSelector
               :apiToken="apiToken"
-              :roomId="getRoomId(newInputData.roomInfo)"
+              :roomId="newInputData.roomId"
               @onDecideToRoomMember="onDecideToRoomMember('inputBodyNew', $event, newInputData)"
             />
             <textarea v-model="newInputData.body" class="input-body form-control" id="inputBodyNew"></textarea>
@@ -320,11 +310,18 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
         </tr>
         <tr v-for="d in sortedWorkingData" :key="d.id" @click="startEdit(d)">
           <template v-if="d.editing">
-            <td><input v-model="d.editableData.roomInfo" placeholder="IDかURLを入力してください" class="input-room-info form-control" /></td>
+            <td>
+              <RoomSelector
+                :apiToken="apiToken"
+                :roomDataArray="roomDataArray"
+                :currentRoomId="d.editableData.roomId"
+                @onSelectRoom="d.editableData.roomId = $event"
+              />
+            </td>
             <td>
               <ToRoomMemberSelector
                 :apiToken="apiToken"
-                :roomId="getRoomId(d.editableData.roomInfo)"
+                :roomId="d.editableData.roomId"
                 @onDecideToRoomMember="onDecideToRoomMember(`inputBody${d.id}`, $event, d.editableData)"
               />
               <textarea v-model="d.editableData.body" class="input-body form-control" :id="`inputBody${d.id}`"></textarea>
@@ -346,7 +343,7 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
             <td><button @click.stop="cancelEdit(d)" class="btn btn-outline-primary container-fluid">キャンセル</button></td>
           </template>
           <template v-else>
-            <td>{{ getRoomNameByInfo(d.editableData.roomInfo) }}</td>
+            <td>{{ getRoomNameById(d.editableData.roomId) }}</td>
             <td>
               <pre class="text-start m-0">{{ d.editableData.body }}</pre>
             </td>
