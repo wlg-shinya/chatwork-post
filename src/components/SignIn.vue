@@ -128,7 +128,7 @@ inputData.value.autoSignIn ? signin() : signout();
     <div class="align-self-center">
       <div class="form-check form-switch">
         <input type="checkbox" v-model="inputData.isSavedApiToken" class="form-check-input" id="isSavedApiToken" />
-        <label class="form-check-label" for="isSavedApiToken">ブラウザに保存する</label>
+        <label class="form-check-label" for="isSavedApiToken">サインインに成功したらブラウザに保存</label>
       </div>
       <div class="form-check form-switch">
         <input type="checkbox" v-model="inputData.autoSignIn" class="form-check-input" id="autoSignIn" />
