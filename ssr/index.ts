@@ -96,40 +96,38 @@ function chatworkPostMessage(apiToken: string, roomId: number, body: string, sel
   });
 }
 
-// チャット投稿判定の監視間隔(秒)
-// DB負荷とチャット投稿時間遅延のトレードオフになるパラメータ
-// ユーザには分単位での入力を許容しているので60より大きくするのは非推奨
-const POLLING_INTERVAL_SEC = 30;
 async function pollingChatworkPostMessage() {
-  setTimeout(async () => {
-    try {
-      const registeredDataArray = await getRegisteredData();
-      registeredDataArray.forEach((data: RegisteredData) => {
-        const condition = concreteCondition(restoreCondition(data.post_condition));
-        if (condition.check()) {
-          // 条件を満たしたので実際にチャットへ投稿
-          // TODO: このサービスから自動投稿されたことを示す文章を付与する
-          chatworkPostMessage(data.api_token, data.room_id, data.body, data.self_unread);
-          condition.update();
-          // 条件更新後の情報をDBに反映
-          updateRegisteredData({
-            id: data.id,
-            api_token: `'${data.api_token}'`,
-            room_id: data.room_id,
-            body: `'${data.body}'`,
-            self_unread: data.self_unread,
-            post_condition: `'${condition.getData()}'`,
-          });
-        }
-      });
-    } catch (error) {
-      // エラー時は情報出力をしてプログラムは継続する
-      console.log(`[${date()}] ${error}`);
-    } finally {
-      // 処理の成功如何に関わらず監視を継続
-      pollingChatworkPostMessage();
-    }
-  }, POLLING_INTERVAL_SEC * 1000);
+  // チャット投稿判定の監視間隔(秒)
+  // DB負荷とチャット投稿時間遅延のトレードオフになるパラメータ
+  // ユーザには分単位での入力を許容しているので60より大きくするのは非推奨
+  const INTERVAL_SEC = 30;
+  try {
+    const registeredDataArray = await getRegisteredData();
+    registeredDataArray.forEach((data: RegisteredData) => {
+      const condition = concreteCondition(restoreCondition(data.post_condition));
+      if (condition.check()) {
+        // 条件を満たしたので実際にチャットへ投稿
+        // TODO: このサービスから自動投稿されたことを示す文章を付与する
+        chatworkPostMessage(data.api_token, data.room_id, data.body, data.self_unread);
+        condition.update();
+        // 条件更新後の情報をDBに反映
+        updateRegisteredData({
+          id: data.id,
+          api_token: `'${data.api_token}'`,
+          room_id: data.room_id,
+          body: `'${data.body}'`,
+          self_unread: data.self_unread,
+          post_condition: `'${condition.getData()}'`,
+        });
+      }
+    });
+  } catch (error) {
+    // エラー時は情報出力をしてプログラムは継続する
+    console.log(`[${date()}] ${error}`);
+  }
+
+  // 処理を繰り返す
+  setTimeout(() => pollingChatworkPostMessage(), INTERVAL_SEC * 1000);
 }
 
 function displayInfo() {
@@ -151,12 +149,10 @@ app.use(express.json());
 app.use(cors());
 const port = process.env.VITE_BACKEND_PORT ?? "";
 app.listen(port, () => {
-  // チャット投稿監視開始
-  pollingChatworkPostMessage();
   // 情報表示
   displayInfo();
-  // 以降、ログ出力を待機
-  console.log(`[${date()}] Log:`);
+  // チャット投稿監視開始
+  pollingChatworkPostMessage();
 });
 
 app.get("/api/db_register", async (req: any, res: any) => {
