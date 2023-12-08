@@ -57,9 +57,12 @@ watch(
     </div>
   </template>
   <template v-else>
-    <template v-if="inputCondition.repeat">
-      {{ inputCondition.repeatIntervalDay }}日ごとに繰り返す。次は{{ inputCondition.goalDateString() }}に投稿する</template
-    >
-    <template v-else> {{ inputCondition.goalDateString() }}に投稿する</template>
+    <template v-if="props.condition.tooOld()"> {{ inputCondition.goalDateString() }}は経過しすぎているので投稿しない</template>
+    <template v-else>
+      <template v-if="inputCondition.repeat">
+        {{ inputCondition.repeatIntervalDay }}日ごとに繰り返す。次は{{ inputCondition.goalDateString() }}に投稿する
+      </template>
+      <template v-else> {{ inputCondition.goalDateString() }}に投稿{{ props.condition.completed ? "した" : "する" }} </template>
+    </template>
   </template>
 </template>

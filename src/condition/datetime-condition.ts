@@ -12,20 +12,19 @@ export class DateTimeCondition implements Condition {
   get repeatIntervalDay() {
     return this._repeatIntervalDay;
   }
-  private completed = false;
+  private _completed = false;
+  get completed() {
+    return this._completed;
+  }
 
   static selectLabel = "指定の日付と時刻に投稿";
   check(): boolean {
     // 完了済みなら以後チェックは通さない
-    if (this.completed) return false;
-    const today = new Date();
-    const excessTime = today.getTime() - this.goalTime();
-    // 超過時間が1時間(3600000ミリ秒)を越えていたら登録情報が古すぎるのでチェックは通さない
-    if (excessTime > 3600000) {
-      return false;
-    }
+    if (this._completed) return false;
+    // 登録情報が古すぎたらチェックは通さない
+    if (this.tooOld()) return false;
     // これまでのチェックを通ったうえで現在時間が目標時間を少しでも越えたらチェックを通す
-    return excessTime > 0;
+    return this.excessTime() > 0;
   }
   update(): void {
     if (this.repeat) {
@@ -34,7 +33,7 @@ export class DateTimeCondition implements Condition {
       this.startDateString = newStartDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
     } else {
       // 繰り返さない場合、条件達成済みとする
-      this.completed = true;
+      this._completed = true;
     }
   }
   getData(): string {
@@ -44,7 +43,7 @@ export class DateTimeCondition implements Condition {
       hoursMinutesString: this.hoursMinutesString,
       startDateString: this.startDateString,
       repeatIntervalDay: this.repeatIntervalDay,
-      completed: this.completed,
+      completed: this._completed,
     });
   }
   setData(data: string) {
@@ -53,7 +52,7 @@ export class DateTimeCondition implements Condition {
     this.hoursMinutesString = d.hoursMinutesString;
     this.startDateString = d.startDateString;
     this.repeatIntervalDay = d.repeatIntervalDay;
-    this.completed = d.completed;
+    this._completed = d.completed;
   }
 
   constructor() {
@@ -72,6 +71,10 @@ export class DateTimeCondition implements Condition {
       hour: "numeric",
       minute: "2-digit",
     });
+  }
+  tooOld(): boolean {
+    // 1時間(3600000ミリ秒)を越えていたら登録情報が古すぎるものとする
+    return this.excessTime() > 3600000;
   }
   private goalTime(): number {
     return this.startTime() + this.hoursMinutesTime();
@@ -92,5 +95,9 @@ export class DateTimeCondition implements Condition {
   }
   private repeatIntervalTime(): number {
     return this.repeatIntervalDay * 86400000; // 86400000ミリ秒 = 1日
+  }
+  private excessTime(): number {
+    const today = new Date();
+    return today.getTime() - this.goalTime();
   }
 }
