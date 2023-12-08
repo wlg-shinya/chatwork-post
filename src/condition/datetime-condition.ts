@@ -93,7 +93,7 @@ export class DateTimeCondition implements Condition {
     return this.repeatIntervalDay * 86400000; // 86400000ミリ秒 = 1日
   }
   private excessTime(): number {
-    // 今日を得るためのnew Dateだとタイムゾーンがシステムに依存する。なのでAsia/Tokyoになるように加工してからUNIT時間を扱う
+    // 今日を得るためのnew Dateだとタイムゾーンがシステムに依存する。なのでAsia/Tokyoになるように加工してからUNIX時間を扱う
     const todayOutTimezone = new Date();
     const todayString = todayOutTimezone.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", hour12: false });
     const match = todayString.match(/([0-9]+)\/([0-9]+)\/([0-9]+) ([0-9]+):([0-9]+):([0-9]+)/);
