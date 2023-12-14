@@ -29,6 +29,7 @@ services:
       - db
   frontend:
     image: chatpost
+    restart: always
     ports:
       - "8100:8100"
     command: sh -c "cd ./dist && http-server -p 8100"
