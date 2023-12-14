@@ -57,6 +57,7 @@ export class DateTimeCondition implements Condition {
 
   constructor() {
     const today = new Date();
+    // システムから取得する時刻はタイムゾーン未定なので明示的にAsia/Tokyoで扱う
     // 年月日のスウェーデン基準(sv-SE)はyyyy-MM-dd。これは<input type="date">で扱う形式と同一
     this.startDateString = today.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
     this.hoursMinutesString = today.toLocaleTimeString("ja-JP", { timeZone: "Asia/Tokyo", hour: "2-digit", minute: "2-digit" });
@@ -64,7 +65,7 @@ export class DateTimeCondition implements Condition {
   goalDateString(): string {
     const goal = new Date(this.goalTime());
     return goal.toLocaleString("ja-JP", {
-      timeZone: "Asia/Tokyo",
+      timeZone: "UTC", // 内部のTime関数はタイムゾーンUTC
       year: "numeric",
       month: "numeric",
       day: "numeric",
