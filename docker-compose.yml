@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    hostname: chatpost-db
+    hostname: chatwork-post-db
     restart: always
     ports:
       - "8102:5432" # 単体起動時はホストPCから 8102 でアクセス可
@@ -12,8 +12,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
   backend:
-    image: chatpost
-    hostname: chatpost-backend
+    image: chatwork-post
+    hostname: chatwork-post-backend
     restart: always
     build:
       context: .
@@ -23,18 +23,18 @@ services:
       - "8101:8101"
     command: node ./dist-ssr/index.js
     environment:
-      - VITE_BACKEND_URL=http://chatpost-backend
-      - VITE_DB_URL=postgres://postgres:postgres@chatpost-db:5432/chatpost
+      - VITE_BACKEND_URL=http://chatwork-post-backend
+      - VITE_DB_URL=postgres://postgres:postgres@chatwork-post-db:5432/chatwork-post
     depends_on:
       - db
   frontend:
-    image: chatpost
+    image: chatwork-post
     restart: always
     ports:
       - "8100:8100"
     command: sh -c "cd ./dist && http-server -p 8100"
     environment:
-      - VITE_BACKEND_URL=http://chatpost-backend
+      - VITE_BACKEND_URL=http://chatwork-post-backend
     depends_on:
       - backend
       - db

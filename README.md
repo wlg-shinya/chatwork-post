@@ -1,4 +1,4 @@
-# chatpost
+# chatwork-post
 
 ## Project setup
 
