@@ -31,7 +31,7 @@ interface WorkingData {
 const newInputData = ref<InputData>({
   roomId: 0,
   body: "",
-  selfUnread: false,
+  selfUnread: true,
   postCondition: {
     name: "",
     class: createCondition("DateTimeCondition"),
