@@ -107,8 +107,9 @@ async function pollingChatworkPostMessage() {
       const condition = concreteCondition(restoreCondition(data.post_condition));
       if (condition.check()) {
         // 条件を満たしたので実際にチャットへ投稿
-        // TODO: このサービスから自動投稿されたことを示す文章を付与する
-        chatworkPostMessage(data.api_token, data.room_id, data.body, data.self_unread);
+        const frontendUrl = `${process.env.VITE_BASE_URL}:${process.env.VITE_BASE_PORT}/`;
+        const signature = `\n( ${frontendUrl} から自動で投稿されました )`;
+        chatworkPostMessage(data.api_token, data.room_id, `${data.body}${signature}`, data.self_unread);
         condition.update();
         // 条件更新後の情報をDBに反映
         updateRegisteredData({
