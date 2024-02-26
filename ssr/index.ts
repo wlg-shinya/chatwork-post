@@ -5,7 +5,7 @@ import pg from "./pg-client";
 import "dotenv";
 import RoutingList from "./express-routing-list";
 import { RegisteredData } from "../src/types";
-import { concreteCondition, restoreCondition } from "../src/condition";
+import { conditionConcrete, conditionRestore } from "../src/condition";
 
 // 指定リクエストデータの指定要素名から値を得る
 // reqDataにはreq.queryかreq.bodyを指定
@@ -104,14 +104,15 @@ async function pollingChatworkPostMessage() {
   try {
     const registeredDataArray = await getRegisteredData();
     registeredDataArray.forEach((data: RegisteredData) => {
-      const condition = concreteCondition(restoreCondition(data.post_condition));
+      const condition = conditionConcrete(conditionRestore(data.post_condition));
+      // 条件を満たしたかチェック。満たしたら実際にチャットへ投稿
       if (condition.check()) {
-        // 条件を満たしたので実際にチャットへ投稿
         const frontendUrl = `${process.env.VITE_BASE_URL}:${process.env.VITE_BASE_PORT}/`;
         const signature = `\n( ${frontendUrl} から自動で投稿されました )`;
         chatworkPostMessage(data.api_token, data.room_id, `${data.body}${signature}`, data.self_unread);
-        condition.update();
-        // 条件更新後の情報をDBに反映
+      }
+      // 情報更新。更新されたらDBに反映
+      if (condition.update()) {
         updateRegisteredData({
           id: data.id,
           api_token: `'${data.api_token}'`,

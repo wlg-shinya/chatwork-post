@@ -1,11 +1,11 @@
 import { Condition } from "./condition-interface";
 import { DateTimeCondition } from "./datetime-condition";
 
-export function concreteCondition(cond: Condition) {
-  switch (cond.name) {
+export function conditionCreate(name: string): Condition {
+  switch (name) {
     case DateTimeCondition.name:
-      return cond as DateTimeCondition;
+      return new DateTimeCondition();
     default:
-      throw new Error(`cond.name=${cond.name}`);
+      throw new Error(`name=${name}`);
   }
 }

@@ -26,14 +26,22 @@ export class DateTimeCondition implements Condition {
     // これまでのチェックを通ったうえで現在時間が目標時間を少しでも越えたらチェックを通す
     return this.excessTime() > 0;
   }
-  update(): void {
-    if (this.repeat) {
-      // 繰り返す場合、指定した繰り返し日数だけ開始日をずらして更新する
+  update(): boolean {
+    // 条件達成済みなら更新することは何もない
+    if (this._completed) return false;
+    // 現在時間が目標時間を越えていない場合は更新することは何もない
+    else if (this.excessTime() <= 0) return false;
+    // 繰り返し設定のデータが目標時間を越えていた場合
+    else if (this.repeat) {
+      // 指定した繰り返し日数だけ開始日をずらして更新する
       const newStartDate = new Date(this.startTime() + this.repeatIntervalTime());
       this.startDateString = newStartDate.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+      return true;
+      // これまでの条件のどれにも合致しない場合
     } else {
-      // 繰り返さない場合、条件達成済みとする
+      // 条件達成済みとする
       this._completed = true;
+      return true;
     }
   }
   getData(): string {

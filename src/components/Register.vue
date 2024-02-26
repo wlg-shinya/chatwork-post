@@ -3,7 +3,7 @@ import { ref, computed, watch } from "vue";
 import axios from "axios";
 import { Modal } from "bootstrap";
 import { RegisteredData, RegisteredDataUserInput, RoomData } from "../types";
-import { Condition, concreteCondition, createCondition, restoreCondition } from "../condition";
+import { Condition, conditionConcrete, conditionCreate, conditionRestore } from "../condition";
 import ConditionComponent from "./Condition.vue";
 import ToRoomMemberSelector from "./ToRoomMemberSelector.vue";
 import RoomSelector from "./RoomSelector.vue";
@@ -34,7 +34,7 @@ const newInputData = ref<InputData>({
   selfUnread: true,
   postCondition: {
     name: "",
-    class: createCondition("DateTimeCondition"),
+    class: conditionCreate("DateTimeCondition"),
   },
 });
 const workingDataArray = ref<WorkingData[]>([]);
@@ -90,14 +90,14 @@ async function updateWorkingData() {
     // 登録済みデータをもとにした未編集の作業中データを構築
     const registeredData = await getRegisteredData();
     const noEdittingWorkingData = registeredData.map((r): WorkingData => {
-      const condition = restoreCondition(r.post_condition);
+      const condition = conditionRestore(r.post_condition);
       const editableData: InputData = {
         roomId: r.room_id,
         body: r.body,
         selfUnread: r.self_unread,
         postCondition: {
           name: condition.name,
-          class: concreteCondition(condition),
+          class: conditionConcrete(condition),
         },
       };
       return {
@@ -302,7 +302,7 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
             <ConditionComponent
               :condition="newInputData.postCondition.class"
               :editting="true"
-              @onSelectedCondition="newInputData.postCondition.class = concreteCondition($event)"
+              @onSelectedCondition="newInputData.postCondition.class = conditionConcrete($event)"
               @onUpdateCondition="newInputData.postCondition.class?.setData($event)"
             />
           </td>
@@ -335,7 +335,7 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
               <ConditionComponent
                 :condition="d.editableData.postCondition.class"
                 :editting="d.editing"
-                @onSelectedCondition="d.editableData.postCondition.class = concreteCondition($event)"
+                @onSelectedCondition="d.editableData.postCondition.class = conditionConcrete($event)"
                 @onUpdateCondition="d.editableData.postCondition.class?.setData($event)"
               />
             </td>
@@ -352,7 +352,7 @@ function onDecideToRoomMember(textareId: string, tag: string, data: InputData) {
               <ConditionComponent
                 :condition="d.editableData.postCondition.class"
                 :editting="d.editing"
-                @onSelectedCondition="d.editableData.postCondition.class = concreteCondition($event)"
+                @onSelectedCondition="d.editableData.postCondition.class = conditionConcrete($event)"
                 @onUpdateCondition="d.editableData.postCondition.class?.setData($event)"
               />
             </td>

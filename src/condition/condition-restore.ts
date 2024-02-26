@@ -1,12 +1,12 @@
 import { Condition } from "./condition-interface";
-import { createCondition } from "./create-condition";
+import { conditionCreate } from "./condition-create";
 
-export function restoreCondition(dataString: string): Condition {
+export function conditionRestore(dataString: string): Condition {
   const data = JSON.parse(dataString);
   if (typeof data.name === "undefined") {
     throw new Error(`data.name undefined`);
   }
-  const condition = createCondition(data.name);
+  const condition = conditionCreate(data.name);
   if (condition == null) {
     throw new Error(`condition=${condition}`);
   }
