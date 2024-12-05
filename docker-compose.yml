@@ -4,7 +4,7 @@ services:
     hostname: chatwork-post-db
     restart: always
     ports:
-      - "8102:5432" # 単体起動時はホストPCから 8102 でアクセス可
+      - "6202:5432" # 単体起動時はホストPCから 6202 でアクセス可
     volumes:
       - ./initdb.d:/docker-entrypoint-initdb.d
       - ./pgdata:/var/lib/postgresql/data
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
       target: prod
     ports:
-      - "8101:8101"
+      - "6201:6201"
     command: node ./dist-ssr/index.js
     environment:
       - VITE_BACKEND_URL=http://chatwork-post-backend
@@ -31,8 +31,8 @@ services:
     image: chatwork-post
     restart: always
     ports:
-      - "8100:8100"
-    command: sh -c "cd ./dist && http-server -p 8100"
+      - "6200:6200"
+    command: sh -c "cd ./dist && http-server -p 6200"
     environment:
       - VITE_BACKEND_URL=http://chatwork-post-backend
     depends_on:
