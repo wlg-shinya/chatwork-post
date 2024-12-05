@@ -9,7 +9,7 @@ $ npm install
 ### DB startup
 
 ```
-$ docker-compose up db
+$ docker compose up db
 ```
 
 ### Build and run for development
@@ -27,5 +27,5 @@ $ npm run build && npm run preview && npm run serve
 ## Deploy
 
 ```
-$ npm run clean && docker-compose up --build
+$ npm run clean && docker compose up --build
 ```

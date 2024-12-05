@@ -25,7 +25,7 @@ const apiToken = ref("");
         <li>〇〇って条件で投稿したい！</li>
         <li>〇〇な機能に対応してほしい！</li>
       </ul>
-      <span>ご要望は Chatwork 上で {{ ADMIN_EMAIL }} にコンタクトください</span>
+      <span>ご要望は {{ ADMIN_EMAIL }} にコンタクトください</span>
     </div>
   </div>
 </template>
