@@ -23,7 +23,7 @@ services:
       - "6201:6201"
     command: node ./dist-ssr/index.js
     environment:
-      - VITE_BACKEND_URL=http://chatwork-post-backend
+      - VITE_BASE_URL=https://chatwork-post.welovegamesinc.com
       - VITE_DB_URL=postgres://postgres:postgres@chatwork-post-db:5432/chatwork-post
     depends_on:
       - db
@@ -34,7 +34,7 @@ services:
       - "6200:6200"
     command: sh -c "cd ./dist && http-server -p 6200"
     environment:
-      - VITE_BACKEND_URL=http://chatwork-post-backend
+      - VITE_BASE_URL=https://chatwork-post.welovegamesinc.com
     depends_on:
       - backend
       - db

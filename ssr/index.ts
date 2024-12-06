@@ -107,7 +107,7 @@ async function pollingChatworkPostMessage() {
       const condition = conditionConcrete(conditionRestore(data.post_condition));
       // 条件を満たしたかチェック。満たしたら実際にチャットへ投稿
       if (condition.check()) {
-        const frontendUrl = `${process.env.VITE_BASE_URL}:${process.env.VITE_BASE_PORT}/`;
+        const frontendUrl = `${process.env.VITE_BASE_URL}`;
         const signature = `\n( ${frontendUrl} から自動で投稿されました )`;
         chatworkPostMessage(data.api_token, data.room_id, `${data.body}${signature}`, data.self_unread);
       }
@@ -134,7 +134,7 @@ async function pollingChatworkPostMessage() {
 
 function displayInfo() {
   // URL＆ポート番号
-  console.log(`[${date()}] Server URL: ${process.env.VITE_BACKEND_URL}:${port}`);
+  console.log(`[${date()}] Server URL: ${process.env.VITE_BACKEND_URL}`);
   // API一覧
   const routingList = RoutingList({ app });
   const routingListKeys = Object.keys(routingList);
