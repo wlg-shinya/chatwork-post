@@ -1,4 +1,6 @@
-# chatwork-post
+# チャットワーク自動投稿 (chatwork-post)
+
+[Chatwork](https://go.chatwork.com/) に時刻を指定して投稿することができるWebサービスです
 
 ## Project setup
 
